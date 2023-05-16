@@ -17,7 +17,8 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "index.html",
+      filename: "index.html",
+      template: './public/index.html',
     }),
 
     // Add your plugins here
