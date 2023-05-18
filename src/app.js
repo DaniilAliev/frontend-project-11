@@ -1,16 +1,34 @@
 import onChange from 'on-change';
 import * as yup from 'yup';
+import i18next from 'i18next';
+import resources from './locales/index.js';
 
 export default () => {
   const state = {
     currentURL: '',
     isValid: true,
+    errors: [],
   };
 
   const elements = {
     form: document.querySelector('form'),
     input: document.querySelector('input'),
+    errorField: {},
   };
+
+  // i18next
+
+  const defaultLang = 'ru';
+
+  const i18nextInstance = i18next.createInstance();
+
+  i18nextInstance
+    .init({
+      lng: defaultLang,
+      debug: true,
+      resources,
+    })
+    .then(() => getUrlAndValidate());
 
   // рендеры
 
@@ -58,6 +76,4 @@ export default () => {
         });
     });
   };
-
-  getUrlAndValidate();
 };
