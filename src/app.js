@@ -1,13 +1,14 @@
 import onChange from 'on-change';
-import * as yup from 'yup';
 import i18next from 'i18next';
 import resources from './locales/index.js';
+import validate from './validate.js';
+import render from './render.js';
 
 export default () => {
   const state = {
     currentURL: '',
     isValid: true,
-    errors: [],
+    errors: '',
   };
 
   const elements = {
@@ -30,16 +31,6 @@ export default () => {
     })
     .then(() => getUrlAndValidate());
 
-  // рендеры
-
-  const render = (isValid, input) => {
-    if (isValid === false) {
-      input.classList.add('is-invalid');
-    } else if (isValid === true) {
-      input.classList.remove('is-invalid');
-    }
-  };
-
   // вотчер за состоянием
   const watchedState = onChange(state, (path, value) => {
     if (path === 'isValid') {
@@ -53,17 +44,14 @@ export default () => {
       e.preventDefault();
       const formData = new FormData(e.target);
       const url = formData.get('url');
-      const schema = yup
-        .string()
-        .url()
-        .notOneOf(Array.of(watchedState.currentURL));
-      schema
-        .validate(url)
+      validate(watchedState, url, i18nextInstance)
         .then(() => {
           watchedState.isValid = true;
         })
-        .catch(() => {
+        .catch((error) => {
           watchedState.isValid = false;
+          watchedState.errors = error.message;
+          console.log(watchedState.errors);
         })
         .then(() => {
           watchedState.currentURL = url;
