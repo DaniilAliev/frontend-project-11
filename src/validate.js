@@ -1,5 +1,4 @@
 import * as yup from 'yup';
-import i18next from 'i18next';
 
 const validate = (state, url, i18nextInstance) => {
   yup.setLocale({

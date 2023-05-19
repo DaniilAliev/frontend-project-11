@@ -1,9 +1,18 @@
-const render = (isValid, input) => {
+const renderBorder = (isValid, elements) => {
   if (isValid === false) {
-    input.classList.add('is-invalid');
+    elements.input.classList.add('is-invalid');
+    elements.errorField.classList.remove('text-success');
+    elements.errorField.classList.add('text-danger');
   } else if (isValid === true) {
-    input.classList.remove('is-invalid');
+    elements.input.classList.remove('is-invalid');
+    elements.errorField.classList.remove('text-danger');
+    elements.errorField.classList.add('text-success');
   }
 };
 
-export default render;
+const renderErrors = (error, elements) => {
+  elements.errorField.textContent = error;
+};
+
+export { renderBorder };
+export { renderErrors };

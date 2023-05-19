@@ -2,7 +2,8 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import resources from './locales/index.js';
 import validate from './validate.js';
-import render from './render.js';
+import { renderBorder } from './render.js';
+import { renderErrors } from './render.js';
 
 export default () => {
   const state = {
@@ -14,7 +15,7 @@ export default () => {
   const elements = {
     form: document.querySelector('form'),
     input: document.querySelector('input'),
-    errorField: {},
+    errorField: document.querySelector('.feedback'),
   };
 
   // i18next
@@ -34,7 +35,10 @@ export default () => {
   // вотчер за состоянием
   const watchedState = onChange(state, (path, value) => {
     if (path === 'isValid') {
-      render(value, elements.input);
+      renderBorder(value, elements);
+    }
+    if (path === 'errors') {
+      renderErrors(value, elements);
     }
   });
 
@@ -46,15 +50,15 @@ export default () => {
       const url = formData.get('url');
       validate(watchedState, url, i18nextInstance)
         .then(() => {
+          watchedState.currentURL = url;
           watchedState.isValid = true;
+          watchedState.errors = i18nextInstance.t(
+            'texts.statusMessage.successful',
+          );
         })
         .catch((error) => {
           watchedState.isValid = false;
           watchedState.errors = error.message;
-          console.log(watchedState.errors);
-        })
-        .then(() => {
-          watchedState.currentURL = url;
         })
         .then(() => {
           if (watchedState.isValid === true) {
