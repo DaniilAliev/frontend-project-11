@@ -8,7 +8,7 @@ import { renderErrors } from './render.js';
 export default () => {
   const state = {
     currentURL: '',
-    isValid: true,
+    isValid: null,
     errors: '',
   };
 
@@ -50,8 +50,8 @@ export default () => {
       const url = formData.get('url');
       validate(watchedState, url, i18nextInstance)
         .then(() => {
-          watchedState.currentURL = url;
           watchedState.isValid = true;
+          watchedState.currentURL = url;
           watchedState.errors = i18nextInstance.t(
             'texts.statusMessage.successful',
           );
