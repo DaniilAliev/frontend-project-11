@@ -10,7 +10,7 @@ const validate = (state, url, i18nextInstance) => {
     },
   });
 
-  const schema = yup.string().url().notOneOf(Array.of(state.currentURL));
+  const schema = yup.string().url().notOneOf(state.currentURL);
   return schema.validate(url);
 };
 

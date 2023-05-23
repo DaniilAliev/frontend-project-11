@@ -4,10 +4,11 @@ import resources from './locales/index.js';
 import validate from './validate.js';
 import { renderBorder } from './render.js';
 import { renderErrors } from './render.js';
+import { renderRSS } from './render.js';
 
 export default () => {
   const state = {
-    currentURL: '',
+    currentURL: [],
     isValid: null,
     errors: '',
   };
@@ -16,6 +17,8 @@ export default () => {
     form: document.querySelector('form'),
     input: document.querySelector('input'),
     errorField: document.querySelector('.feedback'),
+    feedField: document.querySelector('.feeds'),
+    postsField: document.querySelector('.posts'),
   };
 
   // i18next
@@ -40,6 +43,9 @@ export default () => {
     if (path === 'errors') {
       renderErrors(value, elements);
     }
+    if (path === 'currentURL') {
+      renderRSS(value, elements, i18nextInstance);
+    }
   });
 
   // функция для получения урл из формы и изменения статуса isValid
@@ -51,7 +57,7 @@ export default () => {
       validate(watchedState, url, i18nextInstance)
         .then(() => {
           watchedState.isValid = true;
-          watchedState.currentURL = url;
+          watchedState.currentURL.push(url);
           watchedState.errors = i18nextInstance.t(
             'texts.statusMessage.successful',
           );
