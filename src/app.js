@@ -44,7 +44,7 @@ export default () => {
       renderErrors(value, elements);
     }
     if (path === 'currentURL') {
-      renderRSS(value, elements, i18nextInstance);
+      renderRSS(value, elements, i18nextInstance, watchedState);
     }
   });
 

@@ -21,11 +21,16 @@ const renderState = {
   posts: [],
 };
 
-const renderRSS = (urlAr, elements, i18nextInstance) => {
+// const createElementsForRender = () => {
+
+// }
+
+const renderRSS = (urlAr, elements, i18nextInstance, watchedState) => {
+  renderState.posts = [];
   const liFeedResult = [];
   const liPostsResult = [];
   urlAr.forEach((url) => {
-    parserFunc(url).then((parsedHTML) => {
+    parserFunc(url, watchedState, i18nextInstance).then((parsedHTML) => {
       console.log(parsedHTML);
       // Фиды
       const titleRSS = parsedHTML.querySelector('title').textContent;
@@ -52,7 +57,7 @@ const renderRSS = (urlAr, elements, i18nextInstance) => {
       // делаем ul
       const ulFeed = document.createElement('ul');
       ulFeed.classList.add('list-group', 'border-0', 'border-end-0');
-      ulFeed.replaceChildren(...(_.reverse(liFeedResult)));
+      ulFeed.replaceChildren(..._.reverse(liFeedResult));
 
       // делаем div card-body
       const h2Feed = document.createElement('h2');
@@ -89,7 +94,16 @@ const renderRSS = (urlAr, elements, i18nextInstance) => {
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
         a.dataset.id = id;
-        
+
+        // добавлям кнопки
+        const button = document.createElement('button');
+        button.textContent = i18nextInstance.t('texts.rssFeed.watch');
+        button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+        button.type = 'button';
+        button.setAttribute('data-id', id);
+        button.setAttribute('data-bs-toggle', 'modal');
+        button.setAttribute('data-bs-target', '#modal');
+
         // создаем li
         const liPosts = document.createElement('li');
         liPosts.classList.add(
@@ -98,15 +112,19 @@ const renderRSS = (urlAr, elements, i18nextInstance) => {
           'justify-content-between',
           'align-items-start',
           'border-0',
-          'border-end-0',
+          'border-end-0'
         );
-        liPosts.prepend(a);
+        [a, button].forEach((item) => liPosts.append(item));
+        // liPosts.prepend(a);
         liPostsResult.push(liPosts);
       });
       // создаем ul
+      const posts = [...liPostsResult, ...renderState.posts];
+      renderState.posts = posts;
+      console.log(renderState.posts);
       const ulPosts = document.createElement('ul');
       ulPosts.classList.add('list-group', 'border-0', 'rounded-0');
-      ulPosts.replaceChildren(...liPostsResult);
+      ulPosts.replaceChildren(...renderState.posts);
 
       // создаем div card-body
       const h2Posts = document.createElement('h2');
@@ -115,7 +133,7 @@ const renderRSS = (urlAr, elements, i18nextInstance) => {
       const divCardBodyPosts = document.createElement('div');
       divCardBodyPosts.classList.add('card-body');
       divCardBodyPosts.replaceChildren(h2Posts);
-      
+
       // создаем div card border-0
       const divCardBorderPosts = document.createElement('div');
       divCardBorderPosts.classList.add('card', 'border-0');
