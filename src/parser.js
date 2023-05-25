@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { renderErrors } from './render.js';
 
 const parserFunc = (url, watchedState, i18nextInstance) =>
   axios
@@ -9,7 +8,8 @@ const parserFunc = (url, watchedState, i18nextInstance) =>
       return parser.parseFromString(response.data.contents, 'text/xml');
     })
     .catch(() => {
-      watchedState.errors = i18nextInstance.t('networkError');
+      watchedState.isValid = false;
+      watchedState.errors = i18nextInstance.t('texts.statusMessage.networkError');
     });
 
 export default parserFunc;
