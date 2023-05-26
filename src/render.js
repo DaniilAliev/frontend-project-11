@@ -1,4 +1,3 @@
-import parserFunc from './parser.js';
 import _ from 'lodash';
 
 const renderBorder = (isValid, elements) => {
@@ -17,13 +16,39 @@ const renderErrors = (error, elements) => {
   elements.errorField.textContent = error;
 };
 
-const renderFeeds = (value, elements, i18nextInstance) => {
+const renderState = {
+  feeds: [],
+  posts: [],
+};
+
+const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
   console.log(value);
   // renderState.posts = [];
-  // watchedState.feeds = [];
+  renderState.feeds = [];
+  value.forEach((item) => {
+    const h3Feed = document.createElement('h3');
+    h3Feed.classList.add('h6', 'm-0');
+    h3Feed.textContent = item.titleRSS;
+
+    const pFeed = document.createElement('p');
+    pFeed.classList.add('m-0', 'small', 'text-black-50');
+    pFeed.textContent = item.descriptionRss;
+
+    const liFeed = document.createElement('li');
+    liFeed.classList.add('list-group-item', 'border-0', 'border-end-0');
+    [h3Feed, pFeed].forEach((item) => {
+      liFeed.append(item);
+
+      newFeed.push(liFeed);
+    });
+  });
+  const feeds = [...newFeed, ...renderState.feeds];
+  renderState.feeds = feeds;
+  console.log(renderState.feeds);
+
   const ulFeed = document.createElement('ul');
   ulFeed.classList.add('list-group', 'border-0', 'border-end-0');
-  ulFeed.replaceChildren(...value);
+  ulFeed.replaceChildren(...renderState.feeds);
 
   // делаем div card-body
   const h2Feed = document.createElement('h2');
@@ -68,7 +93,7 @@ const renderPosts = (value, elements, i18nextInstance) => {
 
   elements.postsField.innerHTML = '';
   elements.postsField.append(divCardBorderPosts);
-}
+};
 
 export { renderBorder };
 export { renderErrors };

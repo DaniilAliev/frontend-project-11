@@ -14,8 +14,10 @@ export default () => {
     currentURL: [],
     isValid: null,
     errors: '',
-    feeds: [],
-    posts: [],
+    stateUI: {
+      feeds: [],
+      posts: [],
+    },
   };
 
   const elements = {
@@ -49,9 +51,15 @@ export default () => {
       renderErrors(value, elements);
     }
     if (path === 'currentURL') {
-      createElementsForRender(value);
+      // const initAndRun = () => {
+      //   createElementsForRender(value);
+      //   setTimeout(initAndRun, 5000);
+      // };
+
+      // initAndRun();
+      createElementsForRender(value)
     }
-    if (path === 'feeds') {
+    if (path === 'stateUI.feeds') {
       renderFeeds(value, elements, i18nextInstance);
     }
     if (path === 'posts') {
@@ -69,7 +77,9 @@ export default () => {
         .then(() => {
           watchedState.isValid = true;
           watchedState.currentURL.push(url);
-          watchedState.errors = i18nextInstance.t('texts.statusMessage.successful');
+          watchedState.errors = i18nextInstance.t(
+            'texts.statusMessage.successful'
+          );
         })
         .catch((error) => {
           watchedState.isValid = false;
@@ -93,23 +103,13 @@ export default () => {
         const descriptionRss =
           parsedHTML.querySelector('description').textContent;
 
-        const h3Feed = document.createElement('h3');
-        h3Feed.classList.add('h6', 'm-0');
-        h3Feed.textContent = titleRSS;
-
-        const pFeed = document.createElement('p');
-        pFeed.classList.add('m-0', 'small', 'text-black-50');
-        pFeed.textContent = descriptionRss;
-
-        const liFeed = document.createElement('li');
-        liFeed.classList.add('list-group-item', 'border-0', 'border-end-0');
-        [h3Feed, pFeed].forEach((item) => {
-          liFeed.append(item);
+        newFeed.push({
+          titleRSS,
+          descriptionRss,
         });
-        newFeed.push(liFeed);
 
-        const feeds = [...newFeed, ...watchedState.feeds];
-        watchedState.feeds = feeds;
+        const feeds = [...newFeed, ...watchedState.stateUI.feeds];
+        watchedState.stateUI.feeds = feeds;
 
         // Посты
         const items = parsedHTML.querySelectorAll('item');
@@ -118,6 +118,7 @@ export default () => {
 
           const link = item.querySelector('link').textContent;
           const title = item.querySelector('title').textContent;
+          const description = item.querySelector('description').textContent;
 
           const id = _.uniqueId();
           a.href = link;
@@ -146,10 +147,19 @@ export default () => {
           );
           [a, button].forEach((item) => liPosts.append(item));
           newPost.push(liPosts);
+          watchedState.stateUI.posts.push({
+            id,
+            title,
+            description,
+            status: 'unvisited',
+          });
+
+          // console.log(watchedState.stateUI.posts);
+          // console.log(watchedState.stateUI.feeds);
         });
 
-        const posts = [...newPost, ...watchedState.posts];
-        watchedState.posts = posts;
+        // const posts = [...newPost, ...watchedState.posts];
+        // watchedState.posts = posts;
       })
     );
   };
