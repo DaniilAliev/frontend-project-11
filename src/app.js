@@ -97,7 +97,7 @@ export default () => {
 
   const createElementsForRender = (urlAr) => {
     // console.log(urlAr);
-    // watchedState.stateUI.posts = [];
+    watchedState.stateUI.posts = [];
     const existingFeeds = watchedState.stateUI.feeds.map((feed) => feed.titleRSS);
     const existingPosts = new Set();
     // watchedState.stateUI.feeds = [];
@@ -125,10 +125,7 @@ export default () => {
             const description = item.querySelector('description').textContent;
             const id = _.uniqueId();
             const status = 'unwatched';
-            if (!existingPosts.has(link)) {
-              existingPosts.add(link);
-              newPost.push({ id, title, description, link, status });
-            }
+            newPost.push({ id, title, description, link, status });
           });
           watchedState.stateUI.posts = [...newPost, ...watchedState.stateUI.posts];
         })
