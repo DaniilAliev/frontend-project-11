@@ -51,18 +51,21 @@ export default () => {
       renderErrors(value, elements);
     }
     if (path === 'currentURL') {
-      // const initAndRun = () => {
-      //   createElementsForRender(value);
-      //   setTimeout(initAndRun, 5000);
-      // };
+      const initAndRun = () => {
+        createElementsForRender(value);
+        setTimeout(initAndRun, 5000);
+      };
 
-      // initAndRun();
-      createElementsForRender(value)
+      initAndRun();
+
+      // createElementsForRender(value);
     }
     if (path === 'stateUI.feeds') {
+      console.log(value);
       renderFeeds(value, elements, i18nextInstance);
     }
-    if (path === 'posts') {
+    if (path === 'stateUI.posts') {
+      // console.log(value);
       renderPosts(value, elements, i18nextInstance);
     }
   });
@@ -77,9 +80,7 @@ export default () => {
         .then(() => {
           watchedState.isValid = true;
           watchedState.currentURL.push(url);
-          watchedState.errors = i18nextInstance.t(
-            'texts.statusMessage.successful'
-          );
+          watchedState.errors = i18nextInstance.t('texts.statusMessage.successful');
         })
         .catch((error) => {
           watchedState.isValid = false;
@@ -94,73 +95,44 @@ export default () => {
     });
   };
 
-  const createElementsForRender = (urlAr, newFeed = [], newPost = []) => {
-    console.log(urlAr);
+  const createElementsForRender = (urlAr) => {
+    // console.log(urlAr);
+    // watchedState.stateUI.posts = [];
+    const existingFeeds = watchedState.stateUI.feeds.map((feed) => feed.titleRSS);
+    const existingPosts = new Set();
+    // watchedState.stateUI.feeds = [];
+    // фиды
     urlAr.forEach((url) =>
-      parserFunc(url, watchedState, i18nextInstance).then((parsedHTML) => {
-        // Фиды
-        const titleRSS = parsedHTML.querySelector('title').textContent;
-        const descriptionRss =
-          parsedHTML.querySelector('description').textContent;
+      parserFunc(url, watchedState, i18nextInstance)
+        .then((parsedHTML) => {
+          console.log(parsedHTML);
+          // фиды
+          const titleRSS = parsedHTML.querySelector('title').textContent;
+          const descriptionRss =
+            parsedHTML.querySelector('description').textContent;
 
-        newFeed.push({
-          titleRSS,
-          descriptionRss,
-        });
+          if (!existingFeeds.includes(titleRSS)) {
+            watchedState.stateUI.feeds.unshift({ titleRSS, descriptionRss });
+            existingFeeds.push(titleRSS);
+          }
 
-        const feeds = [...newFeed, ...watchedState.stateUI.feeds];
-        watchedState.stateUI.feeds = feeds;
-
-        // Посты
-        const items = parsedHTML.querySelectorAll('item');
-        items.forEach((item) => {
-          const a = document.createElement('a');
-
-          const link = item.querySelector('link').textContent;
-          const title = item.querySelector('title').textContent;
-          const description = item.querySelector('description').textContent;
-
-          const id = _.uniqueId();
-          a.href = link;
-          a.textContent = title;
-          a.classList.add('fw-bold');
-          a.target = '_blank';
-          a.rel = 'noopener noreferrer';
-          a.dataset.id = id;
-
-          const button = document.createElement('button');
-          button.textContent = i18nextInstance.t('texts.rssFeed.watch');
-          button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-          button.type = 'button';
-          button.setAttribute('data-id', id);
-          button.setAttribute('data-bs-toggle', 'modal');
-          button.setAttribute('data-bs-target', '#modal');
-
-          const liPosts = document.createElement('li');
-          liPosts.classList.add(
-            'list-group-item',
-            'd-flex',
-            'justify-content-between',
-            'align-items-start',
-            'border-0',
-            'border-end-0'
-          );
-          [a, button].forEach((item) => liPosts.append(item));
-          newPost.push(liPosts);
-          watchedState.stateUI.posts.push({
-            id,
-            title,
-            description,
-            status: 'unvisited',
+          // посты
+          const items = parsedHTML.querySelectorAll('item');
+          const newPost = [];
+          items.forEach((item) => {
+            const link = item.querySelector('link').textContent;
+            const title = item.querySelector('title').textContent;
+            const description = item.querySelector('description').textContent;
+            const id = _.uniqueId();
+            const status = 'unwatched';
+            if (!existingPosts.has(link)) {
+              existingPosts.add(link);
+              newPost.push({ id, title, description, link, status });
+            }
           });
-
-          // console.log(watchedState.stateUI.posts);
-          // console.log(watchedState.stateUI.feeds);
-        });
-
-        // const posts = [...newPost, ...watchedState.posts];
-        // watchedState.posts = posts;
-      })
+          watchedState.stateUI.posts = [...newPost, ...watchedState.stateUI.posts];
+        })
+        .catch(() => {})
     );
   };
 };

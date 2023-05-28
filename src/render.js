@@ -16,15 +16,7 @@ const renderErrors = (error, elements) => {
   elements.errorField.textContent = error;
 };
 
-const renderState = {
-  feeds: [],
-  posts: [],
-};
-
 const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
-  console.log(value);
-  // renderState.posts = [];
-  renderState.feeds = [];
   value.forEach((item) => {
     const h3Feed = document.createElement('h3');
     h3Feed.classList.add('h6', 'm-0');
@@ -42,13 +34,10 @@ const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
       newFeed.push(liFeed);
     });
   });
-  const feeds = [...newFeed, ...renderState.feeds];
-  renderState.feeds = feeds;
-  console.log(renderState.feeds);
 
   const ulFeed = document.createElement('ul');
   ulFeed.classList.add('list-group', 'border-0', 'border-end-0');
-  ulFeed.replaceChildren(...renderState.feeds);
+  ulFeed.replaceChildren(...newFeed);
 
   // делаем div card-body
   const h2Feed = document.createElement('h2');
@@ -68,31 +57,62 @@ const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
   // добавляем полученное в div feeds
   elements.feedField.innerHTML = '';
   elements.feedField.append(divCardBorder);
+  // elements.feedField.replaceChildren(...divCardBorder)
 };
 
-const renderPosts = (value, elements, i18nextInstance) => {
+const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
   // Посты
-  const ulPosts = document.createElement('ul');
-  ulPosts.classList.add('list-group', 'border-0', 'rounded-0');
-  ulPosts.replaceChildren(...value);
+  values.forEach((value) => {
+    const a = document.createElement('a');
+    a.href = value.link;
+    a.textContent = value.title;
+    a.classList.add('fw-bold');
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.dataset.id = value.id;
 
-  // создаем div card-body
-  const h2Posts = document.createElement('h2');
-  h2Posts.classList.add('card-title', 'h4');
-  h2Posts.textContent = i18nextInstance.t('texts.rssFeed.posts');
-  const divCardBodyPosts = document.createElement('div');
-  divCardBodyPosts.classList.add('card-body');
-  divCardBodyPosts.replaceChildren(h2Posts);
+    const button = document.createElement('button');
+    button.textContent = i18nextInstance.t('texts.rssFeed.watch');
+    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.type = 'button';
+    button.setAttribute('data-id', value.id);
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#modal');
 
-  // создаем div card border-0
-  const divCardBorderPosts = document.createElement('div');
-  divCardBorderPosts.classList.add('card', 'border-0');
-  [divCardBodyPosts, ulPosts].forEach((item) => {
-    divCardBorderPosts.append(item);
+    const liPosts = document.createElement('li');
+    liPosts.classList.add(
+      'list-group-item',
+      'd-flex',
+      'justify-content-between',
+      'align-items-start',
+      'border-0',
+      'border-end-0'
+    );
+    [a, button].forEach((item) => liPosts.append(item));
+    newPosts.push(liPosts);
+
+    const ulPosts = document.createElement('ul');
+    ulPosts.classList.add('list-group', 'border-0', 'rounded-0');
+    ulPosts.replaceChildren(...newPosts);
+
+    // создаем div card-body
+    const h2Posts = document.createElement('h2');
+    h2Posts.classList.add('card-title', 'h4');
+    h2Posts.textContent = i18nextInstance.t('texts.rssFeed.posts');
+    const divCardBodyPosts = document.createElement('div');
+    divCardBodyPosts.classList.add('card-body');
+    divCardBodyPosts.replaceChildren(h2Posts);
+
+    // создаем div card border-0
+    const divCardBorderPosts = document.createElement('div');
+    divCardBorderPosts.classList.add('card', 'border-0');
+    [divCardBodyPosts, ulPosts].forEach((item) => {
+      divCardBorderPosts.append(item);
+    });
+
+    elements.postsField.innerHTML = '';
+    elements.postsField.append(divCardBorderPosts);
   });
-
-  elements.postsField.innerHTML = '';
-  elements.postsField.append(divCardBorderPosts);
 };
 
 export { renderBorder };
