@@ -51,17 +51,17 @@ export default () => {
       renderErrors(value, elements);
     }
     if (path === 'currentURL') {
-      const initAndRun = () => {
-        createElementsForRender(value);
-        setTimeout(initAndRun, 5000);
-      };
+      // const initAndRun = () => {
+      //   createElementsForRender(value);
+      //   setTimeout(initAndRun, 5000);
+      // };
 
-      initAndRun();
-
-      // createElementsForRender(value);
+      // initAndRun();
+      console.log(value);
+      createElementsForRender(value);
     }
     if (path === 'stateUI.feeds') {
-      console.log(value);
+      // console.log(value);
       renderFeeds(value, elements, i18nextInstance);
     }
     if (path === 'stateUI.posts') {
@@ -80,7 +80,9 @@ export default () => {
         .then(() => {
           watchedState.isValid = true;
           watchedState.currentURL.push(url);
-          watchedState.errors = i18nextInstance.t('texts.statusMessage.successful');
+          watchedState.errors = i18nextInstance.t(
+            'texts.statusMessage.successful'
+          );
         })
         .catch((error) => {
           watchedState.isValid = false;
@@ -96,11 +98,9 @@ export default () => {
   };
 
   const createElementsForRender = (urlAr) => {
-    // console.log(urlAr);
-    watchedState.stateUI.posts = [];
-    const existingFeeds = watchedState.stateUI.feeds.map((feed) => feed.titleRSS);
-    const existingPosts = new Set();
-    // watchedState.stateUI.feeds = [];
+    const existingFeeds = watchedState.stateUI.feeds.map(
+      (feed) => feed.titleRSS
+    );
     // фиды
     urlAr.forEach((url) =>
       parserFunc(url, watchedState, i18nextInstance)
@@ -117,8 +117,8 @@ export default () => {
           }
 
           // посты
+          let newPost = [];
           const items = parsedHTML.querySelectorAll('item');
-          const newPost = [];
           items.forEach((item) => {
             const link = item.querySelector('link').textContent;
             const title = item.querySelector('title').textContent;
@@ -127,9 +127,19 @@ export default () => {
             const status = 'unwatched';
             newPost.push({ id, title, description, link, status });
           });
-          watchedState.stateUI.posts = [...newPost, ...watchedState.stateUI.posts];
+
+          newPost = watchedState.stateUI.posts.map((statePost) => 
+            newPost.filter((post) => post.link !== statePost.link)
+          );
+
+          watchedState.stateUI.posts = [
+            ...newPost,
+            ...watchedState.stateUI.posts,
+          ];
+          console.log('newPosts:', newPost)
+          console.log('watchedStatePosts:', watchedState.stateUI.posts)
         })
-        .catch(() => {})
+        .catch(() => {}),
     );
   };
 };
