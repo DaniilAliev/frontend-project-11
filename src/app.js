@@ -6,6 +6,7 @@ import { renderBorder } from './render.js';
 import { renderErrors } from './render.js';
 import { renderFeeds } from './render.js';
 import { renderPosts } from './render.js';
+import { renderButtons } from './render.js';
 import parserFunc from './parser.js';
 import _ from 'lodash';
 
@@ -17,6 +18,7 @@ export default () => {
     stateUI: {
       feeds: [],
       posts: [],
+      currentIdAndButton: {},
     },
   };
 
@@ -57,8 +59,17 @@ export default () => {
       // };
 
       // initAndRun();
-      console.log(value);
+      // console.log(value);
       createElementsForRender(value);
+    }
+    if (path === 'stateUI.currentIdAndButton') {
+      // console.log(value);
+      renderButtons(
+        value,
+        watchedState.stateUI.posts,
+        elements,
+        i18nextInstance
+      );
     }
     if (path === 'stateUI.feeds') {
       // console.log(value);
@@ -93,7 +104,8 @@ export default () => {
             elements.form.reset();
             elements.input.focus();
           }
-        });
+        })
+        .then(() => getId());
     });
   };
 
@@ -128,7 +140,7 @@ export default () => {
             newPost.push({ id, title, description, link, status });
           });
 
-          newPost = watchedState.stateUI.posts.map((statePost) => 
+          newPost = watchedState.stateUI.posts.map((statePost) =>
             newPost.filter((post) => post.link !== statePost.link)
           );
 
@@ -136,10 +148,20 @@ export default () => {
             ...newPost,
             ...watchedState.stateUI.posts,
           ];
-          console.log('newPosts:', newPost)
-          console.log('watchedStatePosts:', watchedState.stateUI.posts)
+          // console.log('newPosts:', newPost)
+          // console.log('watchedStatePosts:', watchedState.stateUI.posts)
         })
-        .catch(() => {}),
+        .catch(() => {})
     );
+  };
+
+  const getId = () => {
+    elements.postsField.addEventListener('click', (e) => {
+      if (e.target.tagName.toUpperCase() === 'BUTTON') {
+        const currentId = e.target.getAttribute('data-id');
+        const button = e.target;
+        watchedState.stateUI.currentIdAndButton = { currentId, button };
+      }
+    });
   };
 };

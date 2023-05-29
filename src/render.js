@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Modal } from 'bootstrap';
 
 const renderBorder = (isValid, elements) => {
   if (isValid === false) {
@@ -88,7 +89,7 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
       'border-0',
       'border-end-0'
     );
-    [a, button].forEach((item) => liPosts.append(item));
+    [a, button, modal].forEach((item) => liPosts.append(item));
     newPosts.push(liPosts);
 
     const ulPosts = document.createElement('ul');
@@ -115,7 +116,38 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
   });
 };
 
+const renderButtons = (
+  { currentId, button },
+  posts,
+  elements,
+  i18nextInstance
+) => {
+  posts.forEach((post) => {
+    if (post.id === currentId) {
+      const li = button.parentNode;
+      const modal = document.createElement('div');
+      modal.classList.add('modal');
+
+      const header = document.createElement('h2');
+      header.textContent = post.title;
+      modal.appendChild(header);
+
+      const body = document.createElement('p');
+      body.textContent = post.description;
+      modal.appendChild(body);
+
+      modal.addEventListener('click', () => {
+        const newModal = new Modal(modal, {});
+        newModal.show();
+      });
+
+      li.append(modal);
+    }
+  });
+};
+
 export { renderBorder };
 export { renderErrors };
 export { renderFeeds };
 export { renderPosts };
+export { renderButtons };
