@@ -2,14 +2,20 @@ import _ from 'lodash';
 import { Modal } from 'bootstrap';
 
 const renderBorder = (isValid, elements) => {
+  if (isValid === 'sending') {
+    elements.submitButton.disabled = true;
+  }
   if (isValid === false) {
     elements.input.classList.add('is-invalid');
     elements.errorField.classList.remove('text-success');
     elements.errorField.classList.add('text-danger');
   } else if (isValid === true) {
+    elements.form.reset();
+    elements.input.focus();
     elements.input.classList.remove('is-invalid');
     elements.errorField.classList.remove('text-danger');
     elements.errorField.classList.add('text-success');
+    elements.submitButton.disabled = false;
   }
 };
 
@@ -71,6 +77,9 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     a.dataset.id = value.id;
+    if (value.status === 'watched') {
+      a.classList.add('text-secondary');
+    }
 
     const button = document.createElement('button');
     button.textContent = i18nextInstance.t('texts.rssFeed.watch');
@@ -78,7 +87,30 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
     button.type = 'button';
     button.setAttribute('data-id', value.id);
     button.setAttribute('data-bs-toggle', 'modal');
-    button.setAttribute('data-bs-target', '#modal');
+    button.setAttribute('data-bs-target', `#modal${value.id}`);
+
+    const modal = document.createElement('div');
+    modal.classList.add('modal', 'fade');
+    modal.id = `modal${value.id}`;
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('aria-labelledby', 'modalLabel');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML = `   <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabel"></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <p></p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-primary">Читать полностью</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                              </div>
+                            </div>
+                          </div>
+                        `;
 
     const liPosts = document.createElement('li');
     liPosts.classList.add(
@@ -116,32 +148,19 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
   });
 };
 
-const renderButtons = (
-  { currentId, button },
-  posts,
-  elements,
-  i18nextInstance
-) => {
+const renderButtons = ({ currentId, button }, posts) => {
+  const li = button.closest('li');
+  const modal = li.querySelector('.modal');
+  const ReadMoreButton = modal.querySelector('.btn-primary');
   posts.forEach((post) => {
     if (post.id === currentId) {
-      const li = button.parentNode;
-      const modal = document.createElement('div');
-      modal.classList.add('modal');
-
-      const header = document.createElement('h2');
-      header.textContent = post.title;
-      modal.appendChild(header);
-
-      const body = document.createElement('p');
-      body.textContent = post.description;
-      modal.appendChild(body);
-
-      modal.addEventListener('click', () => {
-        const newModal = new Modal(modal, {});
-        newModal.show();
+      const modalTitle = modal.querySelector('.modal-title');
+      const modalBody = modal.querySelector('.modal-body p');
+      modalTitle.textContent = post.title;
+      modalBody.textContent = post.description;
+      ReadMoreButton.addEventListener('click', () => {
+        window.open(post.link, '_blank');
       });
-
-      li.append(modal);
     }
   });
 };

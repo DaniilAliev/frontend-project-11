@@ -2,7 +2,7 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import resources from './locales/index.js';
 import validate from './validate.js';
-import { renderBorder } from './render.js';
+import { renderBorder} from './render.js';
 import { renderErrors } from './render.js';
 import { renderFeeds } from './render.js';
 import { renderPosts } from './render.js';
@@ -14,7 +14,9 @@ export default () => {
   const state = {
     currentURL: [],
     isValid: null,
-    errors: '',
+    form: {
+      errors: '',
+    },
     stateUI: {
       feeds: [],
       posts: [],
@@ -25,6 +27,7 @@ export default () => {
   const elements = {
     form: document.querySelector('form'),
     input: document.querySelector('input'),
+    submitButton: document.querySelector('#submit'),
     errorField: document.querySelector('.feedback'),
     feedField: document.querySelector('.feeds'),
     postsField: document.querySelector('.posts'),
@@ -49,7 +52,7 @@ export default () => {
     if (path === 'isValid') {
       renderBorder(value, elements);
     }
-    if (path === 'errors') {
+    if (path === 'form.errors') {
       renderErrors(value, elements);
     }
     if (path === 'currentURL') {
@@ -64,12 +67,7 @@ export default () => {
     }
     if (path === 'stateUI.currentIdAndButton') {
       // console.log(value);
-      renderButtons(
-        value,
-        watchedState.stateUI.posts,
-        elements,
-        i18nextInstance
-      );
+      renderButtons(value, watchedState.stateUI.posts);
     }
     if (path === 'stateUI.feeds') {
       // console.log(value);
@@ -85,27 +83,16 @@ export default () => {
   const getUrlAndValidate = () => {
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
+      watchedState.isValid = 'sending';
       const formData = new FormData(e.target);
       const url = formData.get('url');
       validate(watchedState, url, i18nextInstance)
         .then(() => {
-          watchedState.isValid = true;
           watchedState.currentURL.push(url);
-          watchedState.errors = i18nextInstance.t(
-            'texts.statusMessage.successful'
-          );
         })
         .catch((error) => {
-          watchedState.isValid = false;
           watchedState.errors = error.message;
-        })
-        .then(() => {
-          if (watchedState.isValid === true) {
-            elements.form.reset();
-            elements.input.focus();
-          }
-        })
-        .then(() => getId());
+        });
     });
   };
 
@@ -118,6 +105,10 @@ export default () => {
       parserFunc(url, watchedState, i18nextInstance)
         .then((parsedHTML) => {
           console.log(parsedHTML);
+          if (parsedHTML.querySelector('parsererror')) {
+            watchedState.isValid = false;
+            watchedState.form.errors = i18nextInstance.t('texts.statusMessage.noValidRss')
+          }
           // фиды
           const titleRSS = parsedHTML.querySelector('title').textContent;
           const descriptionRss =
@@ -140,9 +131,9 @@ export default () => {
             newPost.push({ id, title, description, link, status });
           });
 
-          newPost = watchedState.stateUI.posts.map((statePost) =>
-            newPost.filter((post) => post.link !== statePost.link)
-          );
+          // newPost = watchedState.stateUI.posts.map((statePost) =>
+          //   newPost.filter((post) => post.link !== statePost.link)
+          // );
 
           watchedState.stateUI.posts = [
             ...newPost,
@@ -150,18 +141,22 @@ export default () => {
           ];
           // console.log('newPosts:', newPost)
           // console.log('watchedStatePosts:', watchedState.stateUI.posts)
+        }).then(() => {
+          elements.postsField.addEventListener('click', (e) => {
+            if (e.target.tagName.toUpperCase() === 'BUTTON' || e.target.tagName.toUpperCase() === 'A') {
+              const currentId = e.target.getAttribute('data-id');
+              const button = e.target;
+              watchedState.stateUI.currentIdAndButton = { currentId, button };
+
+              watchedState.stateUI.posts.forEach((post) => {
+                if (post.id === currentId) {
+                  post.status = 'watched';
+                }
+              });
+            }
+          });
         })
         .catch(() => {})
     );
-  };
-
-  const getId = () => {
-    elements.postsField.addEventListener('click', (e) => {
-      if (e.target.tagName.toUpperCase() === 'BUTTON') {
-        const currentId = e.target.getAttribute('data-id');
-        const button = e.target;
-        watchedState.stateUI.currentIdAndButton = { currentId, button };
-      }
-    });
   };
 };
