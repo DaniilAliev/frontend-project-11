@@ -148,7 +148,7 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
   });
 };
 
-const renderButtons = ({ currentId, button }, posts) => {
+const renderButtonsAndModal = ({ currentId, button }, posts) => {
   const li = button.closest('li');
   const modal = li.querySelector('.modal');
   const ReadMoreButton = modal.querySelector('.btn-primary');
@@ -169,4 +169,4 @@ export { renderBorder };
 export { renderErrors };
 export { renderFeeds };
 export { renderPosts };
-export { renderButtons };
+export { renderButtonsAndModal };

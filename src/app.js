@@ -6,7 +6,7 @@ import { renderBorder} from './render.js';
 import { renderErrors } from './render.js';
 import { renderFeeds } from './render.js';
 import { renderPosts } from './render.js';
-import { renderButtons } from './render.js';
+import { renderButtonsAndModal } from './render.js';
 import parserFunc from './parser.js';
 import _ from 'lodash';
 
@@ -66,15 +66,12 @@ export default () => {
       createElementsForRender(value);
     }
     if (path === 'stateUI.currentIdAndButton') {
-      // console.log(value);
-      renderButtons(value, watchedState.stateUI.posts);
+      renderButtonsAndModal(value, watchedState.stateUI.posts);
     }
     if (path === 'stateUI.feeds') {
-      // console.log(value);
       renderFeeds(value, elements, i18nextInstance);
     }
     if (path === 'stateUI.posts') {
-      // console.log(value);
       renderPosts(value, elements, i18nextInstance);
     }
   });
@@ -131,9 +128,9 @@ export default () => {
             newPost.push({ id, title, description, link, status });
           });
 
-          // newPost = watchedState.stateUI.posts.map((statePost) =>
-          //   newPost.filter((post) => post.link !== statePost.link)
-          // );
+          newPost = watchedState.stateUI.posts.map((statePost) =>
+            newPost.filter((post) => post.link !== statePost.link)
+          );
 
           watchedState.stateUI.posts = [
             ...newPost,

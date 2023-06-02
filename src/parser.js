@@ -4,7 +4,6 @@ const parserFunc = (url, watchedState, i18nextInstance) =>
   axios
     .get(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}`)
     .then((response) => {
-      // watchedState.isValid = 'sending';
       if (response.status === 200) {
         watchedState.isValid = true;
         watchedState.form.errors = i18nextInstance.t(
