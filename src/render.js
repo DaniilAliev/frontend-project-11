@@ -9,6 +9,7 @@ const renderBorder = (isValid, elements) => {
     elements.input.classList.add('is-invalid');
     elements.errorField.classList.remove('text-success');
     elements.errorField.classList.add('text-danger');
+    elements.submitButton.disabled = false;
   } else if (isValid === true) {
     elements.form.reset();
     elements.input.focus();

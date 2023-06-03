@@ -2,7 +2,7 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import resources from './locales/index.js';
 import validate from './validate.js';
-import { renderBorder} from './render.js';
+import { renderBorder } from './render.js';
 import { renderErrors } from './render.js';
 import { renderFeeds } from './render.js';
 import { renderPosts } from './render.js';
@@ -15,6 +15,7 @@ export default () => {
     currentURL: [],
     isValid: null,
     form: {
+      isSubmit: false,
       errors: '',
     },
     stateUI: {
@@ -56,14 +57,13 @@ export default () => {
       renderErrors(value, elements);
     }
     if (path === 'currentURL') {
-      // const initAndRun = () => {
-      //   createElementsForRender(value);
-      //   setTimeout(initAndRun, 5000);
-      // };
+      const initAndRun = () => {
+        createElementsForRender(value, watchedState.form.isSubmit);
+        setTimeout(initAndRun, 5000);
+      };
 
-      // initAndRun();
-      // console.log(value);
-      createElementsForRender(value);
+      initAndRun();
+      // createElementsForRender(value);
     }
     if (path === 'stateUI.currentIdAndButton') {
       renderButtonsAndModal(value, watchedState.stateUI.posts);
@@ -81,30 +81,40 @@ export default () => {
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       watchedState.isValid = 'sending';
+      watchedState.form.isSubmit = true;
       const formData = new FormData(e.target);
       const url = formData.get('url');
       validate(watchedState, url, i18nextInstance)
         .then(() => {
           watchedState.currentURL.push(url);
+          watchedState.isValid = true;
+          watchedState.form.errors = i18nextInstance.t(
+            'texts.statusMessage.successful'
+          );
         })
         .catch((error) => {
-          watchedState.errors = error.message;
+          console.log(error.message);
+          watchedState.isValid = false;
+          watchedState.form.errors = error.message;
         });
     });
   };
 
-  const createElementsForRender = (urlAr) => {
+  const createElementsForRender = (urlAr, isSubmit) => {
     const existingFeeds = watchedState.stateUI.feeds.map(
       (feed) => feed.titleRSS
     );
     // фиды
+    let newPost = [];
     urlAr.forEach((url) =>
-      parserFunc(url, watchedState, i18nextInstance)
+      parserFunc(url, watchedState, i18nextInstance, isSubmit)
         .then((parsedHTML) => {
           console.log(parsedHTML);
           if (parsedHTML.querySelector('parsererror')) {
             watchedState.isValid = false;
-            watchedState.form.errors = i18nextInstance.t('texts.statusMessage.noValidRss')
+            watchedState.form.errors = i18nextInstance.t(
+              'texts.statusMessage.noValidRss'
+            );
           }
           // фиды
           const titleRSS = parsedHTML.querySelector('title').textContent;
@@ -117,7 +127,7 @@ export default () => {
           }
 
           // посты
-          let newPost = [];
+
           const items = parsedHTML.querySelectorAll('item');
           items.forEach((item) => {
             const link = item.querySelector('link').textContent;
@@ -125,22 +135,33 @@ export default () => {
             const description = item.querySelector('description').textContent;
             const id = _.uniqueId();
             const status = 'unwatched';
+
             newPost.push({ id, title, description, link, status });
           });
 
-          newPost = watchedState.stateUI.posts.map((statePost) =>
-            newPost.filter((post) => post.link !== statePost.link)
-          );
+          if (watchedState.stateUI.posts.length !== 0) {
+            newPost = newPost.filter(
+              (post) =>
+                !watchedState.stateUI.posts.some(
+                  (statePost) => statePost.link === post.link
+                )
+            );
+          }
 
           watchedState.stateUI.posts = [
             ...newPost,
             ...watchedState.stateUI.posts,
           ];
-          // console.log('newPosts:', newPost)
+
+          console.log('newPosts:', newPost);
           // console.log('watchedStatePosts:', watchedState.stateUI.posts)
-        }).then(() => {
+        })
+        .then(() => {
           elements.postsField.addEventListener('click', (e) => {
-            if (e.target.tagName.toUpperCase() === 'BUTTON' || e.target.tagName.toUpperCase() === 'A') {
+            if (
+              e.target.tagName.toUpperCase() === 'BUTTON' ||
+              e.target.tagName.toUpperCase() === 'A'
+            ) {
               const currentId = e.target.getAttribute('data-id');
               const button = e.target;
               watchedState.stateUI.currentIdAndButton = { currentId, button };
@@ -152,6 +173,9 @@ export default () => {
               });
             }
           });
+        })
+        .then(() => {
+          watchedState.form.isSubmit = false;
         })
         .catch(() => {})
     );
