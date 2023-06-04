@@ -1,5 +1,4 @@
-import _ from 'lodash';
-import { Modal } from 'bootstrap';
+import { Modal } from "bootstrap";
 
 const renderBorder = (isValid, elements) => {
   if (isValid === 'sending') {
@@ -36,8 +35,8 @@ const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
 
     const liFeed = document.createElement('li');
     liFeed.classList.add('list-group-item', 'border-0', 'border-end-0');
-    [h3Feed, pFeed].forEach((item) => {
-      liFeed.append(item);
+    [h3Feed, pFeed].forEach((subItem) => {
+      liFeed.append(subItem);
 
       newFeed.push(liFeed);
     });
@@ -120,7 +119,7 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
       'justify-content-between',
       'align-items-start',
       'border-0',
-      'border-end-0'
+      'border-end-0',
     );
     [a, button, modal].forEach((item) => liPosts.append(item));
     newPosts.push(liPosts);
