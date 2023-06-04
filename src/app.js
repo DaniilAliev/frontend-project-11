@@ -4,7 +4,7 @@ import _ from 'lodash';
 import resources from './locales/index.js';
 import validate from './validate.js';
 import {
-  renderBorder, renderErrors, renderFeeds, renderPosts, renderButtonsAndModal,
+  renderBorder, renderErrors, renderFeeds, renderPosts, renderButtonsAndModal, renderModal,
 } from './render.js';
 import parserFunc from './parser.js';
 
@@ -40,9 +40,12 @@ export default () => {
     if (path === 'form.errors') {
       renderErrors(value, elements);
     }
+    if (path === 'form.isSubmit') {
+      renderModal(value, elements, i18nextInstance);
+    }
     if (path === 'currentURL') {
       const initAndRun = () => {
-        createElementsForRender(value, watchedState.form.isSubmit);
+        createElementsForRender(value);
         setTimeout(initAndRun, 5000);
       };
 
@@ -60,39 +63,46 @@ export default () => {
     }
   });
 
-  // функция для получения урл из формы и изменения статуса isValid
+  // функция для получения урл из формы и изменения статуса isValid,
+  // добавления УРЛ если он валидный, а также контроля состояния формы
   const getUrlAndValidate = () => {
     elements.form.addEventListener('submit', (e) => {
+      watchedState.isValid = null;
+      watchedState.form.errors = '';
+
       e.preventDefault();
-      watchedState.isValid = 'sending';
-      watchedState.form.isSubmit = true;
+      watchedState.form.isSubmit = 'submitting';
       const formData = new FormData(e.target);
       const url = formData.get('url');
       validate(watchedState, url, i18nextInstance)
         .then(() => {
           watchedState.currentURL.push(url);
           watchedState.isValid = true;
-          watchedState.form.errors = i18nextInstance.t('texts.statusMessage.successful');
         })
         .catch((error) => {
-          console.log(error.message);
           watchedState.isValid = false;
+          watchedState.form.isSubmit = false;
           watchedState.form.errors = error.message;
         });
     });
   };
 
-  const createElementsForRender = (urlAr, isSubmit) => {
+  const createElementsForRender = (urlAr) => {
     const existingFeeds = watchedState.stateUI.feeds.map((feed) => feed.titleRSS);
     // фиды
     let newPost = [];
-    urlAr.forEach((url) => parserFunc(url, watchedState, i18nextInstance, isSubmit)
+    urlAr.forEach((url) => parserFunc(url, watchedState, i18nextInstance)
       .then((parsedHTML) => {
-        console.log(parsedHTML);
+        watchedState.form.isSubmit = true;
+        if (watchedState.isValid !== false) {
+          watchedState.form.errors = i18nextInstance.t('texts.statusMessage.successful');
+        }
+
         if (parsedHTML.querySelector('parsererror')) {
           watchedState.isValid = false;
           watchedState.form.errors = i18nextInstance.t('texts.statusMessage.noValidRss');
         }
+
         // фиды
         const titleRSS = parsedHTML.querySelector('title').textContent;
         const descriptionRss = parsedHTML.querySelector('description').textContent;
@@ -128,9 +138,6 @@ export default () => {
         }
 
         watchedState.stateUI.posts = [...newPost, ...watchedState.stateUI.posts];
-
-        console.log('newPosts:', newPost);
-        // console.log('watchedStatePosts:', watchedState.stateUI.posts)
       })
       .then(() => {
         elements.postsField.addEventListener('click', (e) => {

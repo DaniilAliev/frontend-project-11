@@ -1,23 +1,27 @@
 import { Modal } from "bootstrap";
 
 const renderBorder = (isValid, elements) => {
-  if (isValid === 'sending') {
-    elements.submitButton.disabled = true;
-  }
   if (isValid === false) {
     elements.input.classList.add('is-invalid');
     elements.errorField.classList.remove('text-success');
     elements.errorField.classList.add('text-danger');
-    elements.submitButton.disabled = false;
   } else if (isValid === true) {
     elements.form.reset();
     elements.input.focus();
     elements.input.classList.remove('is-invalid');
     elements.errorField.classList.remove('text-danger');
     elements.errorField.classList.add('text-success');
-    elements.submitButton.disabled = false;
   }
 };
+
+const renderModal = (value, elements, i18nextInstance) => {
+  if (value === 'submitting') {
+    elements.submitButton.disabled = true;
+    elements.errorField.textContent = '';
+  } else {
+    elements.submitButton.disabled = false;
+  }
+}
 
 const renderErrors = (error, elements) => {
   elements.errorField.textContent = error;
@@ -170,3 +174,4 @@ export { renderErrors };
 export { renderFeeds };
 export { renderPosts };
 export { renderButtonsAndModal };
+export { renderModal };
