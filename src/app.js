@@ -97,7 +97,6 @@ export default () => {
         if (watchedState.isValid !== false) {
           watchedState.form.errors = i18nextInstance.t('texts.statusMessage.successful');
         }
-
         if (parsedHTML.querySelector('parsererror')) {
           watchedState.isValid = false;
           watchedState.form.errors = i18nextInstance.t('texts.statusMessage.noValidRss');
