@@ -41,7 +41,7 @@ export default () => {
       renderErrors(value, elements);
     }
     if (path === 'form.isSubmit') {
-      renderModal(value, elements, i18nextInstance);
+      renderModal(value, elements);
     }
     if (path === 'currentURL') {
       const initAndRun = () => {

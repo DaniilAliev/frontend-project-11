@@ -1,4 +1,4 @@
-import { Modal } from "bootstrap";
+import 'bootstrap';
 
 const renderBorder = (isValid, elements) => {
   if (isValid === false) {
@@ -14,14 +14,14 @@ const renderBorder = (isValid, elements) => {
   }
 };
 
-const renderModal = (value, elements, i18nextInstance) => {
+const renderModal = (value, elements) => {
   if (value === 'submitting') {
     elements.submitButton.disabled = true;
     elements.errorField.textContent = '';
   } else {
     elements.submitButton.disabled = false;
   }
-}
+};
 
 const renderErrors = (error, elements) => {
   elements.errorField.textContent = error;
