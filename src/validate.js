@@ -6,6 +6,7 @@ const validate = (state, url, i18nextInstance) => {
       notOneOf: i18nextInstance.t('texts.statusMessage.existing'),
     },
     string: {
+      required: i18nextInstance.t('texts.statusMessage.notEmpty'),
       url: i18nextInstance.t('texts.statusMessage.invalid'),
     },
   });
