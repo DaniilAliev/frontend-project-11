@@ -14,7 +14,7 @@ const renderBorder = (isValid, elements) => {
   }
 };
 
-const renderModal = (value, elements) => {
+const renderForm = (value, elements) => {
   if (value === 'submitting') {
     elements.submitButton.disabled = true;
     elements.errorField.textContent = '';
@@ -109,8 +109,8 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
                                 <p></p>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-primary">Читать полностью</button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                <button type="button" class="btn btn-primary"></button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"></button>
                               </div>
                             </div>
                           </div>
@@ -155,14 +155,17 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
 const renderButtonsAndModal = ({ currentId, button }, posts) => {
   const li = button.closest('li');
   const modal = li.querySelector('.modal');
-  const ReadMoreButton = modal.querySelector('.btn-primary');
+  const readMoreButton = modal.querySelector('.btn-primary');
+  const closeButton = modal.querySelector('.btn-secondary');
   posts.forEach((post) => {
     if (post.id === currentId) {
       const modalTitle = modal.querySelector('.modal-title');
       const modalBody = modal.querySelector('.modal-body p');
       modalTitle.textContent = post.title;
       modalBody.textContent = post.description;
-      ReadMoreButton.addEventListener('click', () => {
+      readMoreButton.textContent = 'Читать полностью';
+      closeButton.textContent = 'Закрыть';
+      readMoreButton.addEventListener('click', () => {
         window.open(post.link, '_blank');
       });
     }
@@ -174,4 +177,4 @@ export { renderErrors };
 export { renderFeeds };
 export { renderPosts };
 export { renderButtonsAndModal };
-export { renderModal };
+export { renderForm };

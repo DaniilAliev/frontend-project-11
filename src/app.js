@@ -4,7 +4,7 @@ import _ from 'lodash';
 import resources from './locales/index.js';
 import validate from './validate.js';
 import {
-  renderBorder, renderErrors, renderFeeds, renderPosts, renderButtonsAndModal, renderModal,
+  renderBorder, renderErrors, renderFeeds, renderPosts, renderButtonsAndModal, renderForm,
 } from './render.js';
 import parserFunc from './parser.js';
 
@@ -41,7 +41,7 @@ export default () => {
       renderErrors(value, elements);
     }
     if (path === 'form.isSubmit') {
-      renderModal(value, elements);
+      renderForm(value, elements);
     }
     if (path === 'currentURL') {
       const initAndRun = () => {
