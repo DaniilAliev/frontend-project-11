@@ -170,6 +170,11 @@ const renderButtonsAndModal = ({ currentId, button }, posts) => {
       });
     }
   });
+
+  modal.addEventListener('hidden.bs.modal', () => {
+    const removeModal = document.querySelector('.fade');
+    removeModal.remove();
+  });
 };
 
 export { renderBorder };
