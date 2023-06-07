@@ -1,4 +1,4 @@
-// import { Modal } from 'bootstrap';
+import 'bootstrap';
 
 const renderBorder = (isValid, elements) => {
   if (isValid === false) {
@@ -91,7 +91,7 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
     button.type = 'button';
     button.setAttribute('data-id', value.id);
     button.setAttribute('data-bs-toggle', 'modal');
-    button.setAttribute('data-bs-target', `#modal${value.id}`);
+    button.setAttribute('data-bs-target', '#modal');
 
     const liPosts = document.createElement('li');
     liPosts.classList.add(
@@ -129,17 +129,14 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
   });
 };
 
-const renderButtonsAndModal = ({ currentId, postInfo }, elements) => {
+const renderButtonsAndModal = ({ postInfo }, elements) => {
   const readMoreButton = elements.modal.querySelector('.btn-primary');
-  elements.modal.id = `modal${currentId}`;
+  // elements.modal.id = `modal${currentId}`;
   elements.modalTitle.textContent = postInfo.title;
   elements.modalBody.textContent = postInfo.description;
   readMoreButton.addEventListener('click', () => {
     window.open(postInfo.link, '_blank');
   });
-
-  const modal = new Modal(elements.modal);
-  modal.show();
 };
 
 export { renderBorder };

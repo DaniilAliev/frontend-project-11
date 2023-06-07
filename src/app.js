@@ -167,7 +167,7 @@ export default () => {
                 postInfo.link = post.link;
               }
             });
-            watchedState.stateUI.currentIdAndButton = { currentId, postInfo };
+            watchedState.stateUI.currentIdAndButton = { postInfo };
             watchedState.stateUI.posts.forEach((post) => {
               if (post.id === currentId) {
                 post.status = 'watched';
