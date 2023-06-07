@@ -1,4 +1,4 @@
-import 'bootstrap';
+import { Modal } from "bootstrap";
 
 const renderBorder = (isValid, elements) => {
   if (isValid === false) {
@@ -93,29 +93,6 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', `#modal${value.id}`);
 
-    const modal = document.createElement('div');
-    modal.classList.add('modal', 'fade');
-    modal.id = `modal${value.id}`;
-    modal.setAttribute('tabindex', '-1');
-    modal.setAttribute('aria-labelledby', 'modalLabel');
-    modal.setAttribute('aria-hidden', 'true');
-    modal.innerHTML = `   <div class="modal-dialog">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="modalLabel"></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                <p></p>
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-primary"></button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"></button>
-                              </div>
-                            </div>
-                          </div>
-                        `;
-
     const liPosts = document.createElement('li');
     liPosts.classList.add(
       'list-group-item',
@@ -125,7 +102,7 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
       'border-0',
       'border-end-0',
     );
-    [a, button, modal].forEach((item) => liPosts.append(item));
+    [a, button].forEach((item) => liPosts.append(item));
     newPosts.push(liPosts);
 
     const ulPosts = document.createElement('ul');
@@ -152,29 +129,21 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
   });
 };
 
-const renderButtonsAndModal = ({ currentId, button }, posts) => {
-  const li = button.closest('li');
-  const modal = li.querySelector('.modal');
-  const readMoreButton = modal.querySelector('.btn-primary');
-  const closeButton = modal.querySelector('.btn-secondary');
-  posts.forEach((post) => {
-    if (post.id === currentId) {
-      const modalTitle = modal.querySelector('.modal-title');
-      const modalBody = modal.querySelector('.modal-body p');
-      modalTitle.textContent = post.title;
-      modalBody.textContent = post.description;
-      readMoreButton.textContent = 'Читать полностью';
-      closeButton.textContent = 'Закрыть';
-      readMoreButton.addEventListener('click', () => {
-        window.open(post.link, '_blank');
-      });
-    }
+const renderButtonsAndModal = ({ currentId, postInfo }, elements) => {
+  if (!elements.modal.parentNode) {
+    document.body.appendChild(elements.modal);
+  }
+
+  const readMoreButton = elements.modal.querySelector('.btn-primary');
+  elements.modal.id = `modal${currentId}`;
+  elements.modalTitle.textContent = postInfo.title;
+  elements.modalBody.textContent = postInfo.description;
+  readMoreButton.addEventListener('click', () => {
+    window.open(postInfo.link, '_blank');
   });
 
-  modal.addEventListener('hidden.bs.modal', () => {
-    const removeModal = document.querySelector('.fade');
-    removeModal.remove();
-  });
+  const modal = new Modal(elements.modal);
+  modal.show();
 };
 
 export { renderBorder };

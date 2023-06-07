@@ -30,6 +30,10 @@ export default () => {
     errorField: document.querySelector('.feedback'),
     feedField: document.querySelector('.feeds'),
     postsField: document.querySelector('.posts'),
+    modal: document.querySelector('.modal'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalBody: document.querySelector('.modal-body'),
+    modalFooterA: document.querySelector('.modal-footer a'),
   };
 
   // вотчер за состоянием
@@ -53,7 +57,7 @@ export default () => {
       // createElementsForRender(value);
     }
     if (path === 'stateUI.currentIdAndButton') {
-      renderButtonsAndModal(value, watchedState.stateUI.posts);
+      renderButtonsAndModal(value, elements);
     }
     if (path === 'stateUI.feeds') {
       renderFeeds(value, elements, i18nextInstance);
@@ -142,8 +146,16 @@ export default () => {
         elements.postsField.addEventListener('click', (e) => {
           if (e.target.tagName.toUpperCase() === 'BUTTON' || e.target.tagName.toUpperCase() === 'A') {
             const currentId = e.target.getAttribute('data-id');
-            const button = e.target;
-            watchedState.stateUI.currentIdAndButton = { currentId, button };
+            const postInfo = {};
+
+            watchedState.stateUI.posts.forEach((post) => {
+              if (post.id === currentId) {
+                postInfo.title = post.title;
+                postInfo.description = post.description;
+                postInfo.link = post.link;
+              }
+            });
+            watchedState.stateUI.currentIdAndButton = { currentId, postInfo };
             watchedState.stateUI.posts.forEach((post) => {
               if (post.id === currentId) {
                 post.status = 'watched';
