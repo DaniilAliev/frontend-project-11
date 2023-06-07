@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import onChange from 'on-change';
 import i18next from 'i18next';
 import _ from 'lodash';
@@ -46,25 +47,7 @@ export default () => {
       debug: true,
       resources,
     })
-    .then(() => elements.form.addEventListener('submit', (e) => {
-      watchedState.isValid = null;
-      watchedState.form.errors = '';
-
-      e.preventDefault();
-      watchedState.form.isSubmit = 'submitting';
-      const formData = new FormData(e.target);
-      const url = formData.get('url');
-      validate(watchedState, url, i18nextInstance)
-        .then(() => {
-          watchedState.currentURL.push(url);
-          watchedState.isValid = true;
-        })
-        .catch((error) => {
-          watchedState.isValid = false;
-          watchedState.form.isSubmit = false;
-          watchedState.form.errors = error.message;
-        });
-    }));
+    .then(() => getUrlAndValidate());
 
   const watchedState = onChange(state, (path, value) => {
     if (path === 'isValid') {
@@ -83,7 +66,6 @@ export default () => {
       };
 
       initAndRun();
-      // createElementsForRender(value);
     }
     if (path === 'stateUI.currentIdAndButton') {
       renderButtonsAndModal(value, elements);
@@ -97,6 +79,27 @@ export default () => {
   });
   // функция для получения урл из формы и изменения статуса isValid,
   // добавления УРЛ если он валидный, а также контроля состояния формы
+  const getUrlAndValidate = () => {
+    elements.form.addEventListener('submit', (e) => {
+      watchedState.isValid = null;
+      watchedState.form.errors = '';
+
+      e.preventDefault();
+      watchedState.form.isSubmit = 'submitting';
+      const formData = new FormData(e.target);
+      const url = formData.get('url');
+      validate(watchedState, url, i18nextInstance)
+        .then(() => {
+          watchedState.currentURL.push(url);
+          watchedState.isValid = true;
+        })
+        .catch((error) => {
+          watchedState.isValid = false;
+          watchedState.form.isSubmit = false;
+          watchedState.form.errors = error.message;
+        });
+    });
+  };
 
   // вотчер за состоянием
 

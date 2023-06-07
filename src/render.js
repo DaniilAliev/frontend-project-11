@@ -1,4 +1,4 @@
-import { Modal } from 'bootstrap';
+// import { Modal } from 'bootstrap';
 
 const renderBorder = (isValid, elements) => {
   if (isValid === false) {
@@ -130,10 +130,6 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
 };
 
 const renderButtonsAndModal = ({ currentId, postInfo }, elements) => {
-  if (!elements.modal.parentNode) {
-    document.body.appendChild(elements.modal);
-  }
-
   const readMoreButton = elements.modal.querySelector('.btn-primary');
   elements.modal.id = `modal${currentId}`;
   elements.modalTitle.textContent = postInfo.title;
@@ -142,8 +138,8 @@ const renderButtonsAndModal = ({ currentId, postInfo }, elements) => {
     window.open(postInfo.link, '_blank');
   });
 
-  // const modal = new Modal(elements.modal);
-  // modal.show();
+  const modal = new Modal(elements.modal);
+  modal.show();
 };
 
 export { renderBorder };
