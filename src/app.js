@@ -46,9 +46,26 @@ export default () => {
       debug: true,
       resources,
     })
-    .then(() => getUrlAndValidate());
+    .then(() => elements.form.addEventListener('submit', (e) => {
+      watchedState.isValid = null;
+      watchedState.form.errors = '';
 
-  // вотчер за состоянием
+      e.preventDefault();
+      watchedState.form.isSubmit = 'submitting';
+      const formData = new FormData(e.target);
+      const url = formData.get('url');
+      validate(watchedState, url, i18nextInstance)
+        .then(() => {
+          watchedState.currentURL.push(url);
+          watchedState.isValid = true;
+        })
+        .catch((error) => {
+          watchedState.isValid = false;
+          watchedState.form.isSubmit = false;
+          watchedState.form.errors = error.message;
+        });
+    }));
+
   const watchedState = onChange(state, (path, value) => {
     if (path === 'isValid') {
       renderBorder(value, elements);
@@ -78,30 +95,10 @@ export default () => {
       renderPosts(value, elements, i18nextInstance);
     }
   });
-
   // функция для получения урл из формы и изменения статуса isValid,
   // добавления УРЛ если он валидный, а также контроля состояния формы
-  const getUrlAndValidate = () => {
-    elements.form.addEventListener('submit', (e) => {
-      watchedState.isValid = null;
-      watchedState.form.errors = '';
 
-      e.preventDefault();
-      watchedState.form.isSubmit = 'submitting';
-      const formData = new FormData(e.target);
-      const url = formData.get('url');
-      validate(watchedState, url, i18nextInstance)
-        .then(() => {
-          watchedState.currentURL.push(url);
-          watchedState.isValid = true;
-        })
-        .catch((error) => {
-          watchedState.isValid = false;
-          watchedState.form.isSubmit = false;
-          watchedState.form.errors = error.message;
-        });
-    });
-  };
+  // вотчер за состоянием
 
   const createElementsForRender = (urlAr) => {
     const existingFeeds = watchedState.stateUI.feeds.map((feed) => feed.titleRSS);
@@ -178,7 +175,4 @@ export default () => {
       })
       .catch(() => {}));
   };
-
-  // i18next
-  
 };

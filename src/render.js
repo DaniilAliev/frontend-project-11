@@ -1,4 +1,4 @@
-import { Modal } from "bootstrap";
+import { Modal } from 'bootstrap';
 
 const renderBorder = (isValid, elements) => {
   if (isValid === false) {
@@ -142,8 +142,8 @@ const renderButtonsAndModal = ({ currentId, postInfo }, elements) => {
     window.open(postInfo.link, '_blank');
   });
 
-  const modal = new Modal(elements.modal);
-  modal.show();
+  // const modal = new Modal(elements.modal);
+  // modal.show();
 };
 
 export { renderBorder };
