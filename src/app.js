@@ -36,6 +36,18 @@ export default () => {
     modalFooterA: document.querySelector('.modal-footer a'),
   };
 
+  const defaultLang = 'ru';
+
+  const i18nextInstance = i18next.createInstance();
+
+  i18nextInstance
+    .init({
+      lng: defaultLang,
+      debug: true,
+      resources,
+    })
+    .then(() => getUrlAndValidate());
+
   // вотчер за состоянием
   const watchedState = onChange(state, (path, value) => {
     if (path === 'isValid') {
@@ -168,15 +180,5 @@ export default () => {
   };
 
   // i18next
-  const defaultLang = 'ru';
-
-  const i18nextInstance = i18next.createInstance();
-
-  i18nextInstance
-    .init({
-      lng: defaultLang,
-      debug: true,
-      resources,
-    })
-    .then(() => getUrlAndValidate());
+  
 };
