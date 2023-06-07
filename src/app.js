@@ -101,8 +101,6 @@ export default () => {
     });
   };
 
-  // вотчер за состоянием
-
   const createElementsForRender = (urlAr) => {
     const existingFeeds = watchedState.stateUI.feeds.map((feed) => feed.titleRSS);
     // фиды
@@ -118,7 +116,6 @@ export default () => {
           watchedState.form.errors = i18nextInstance.t('texts.statusMessage.noValidRss');
         }
 
-        // фиды
         const titleRSS = parsedHTML.querySelector('title').textContent;
         const descriptionRss = parsedHTML.querySelector('description').textContent;
 

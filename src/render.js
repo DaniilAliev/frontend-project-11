@@ -68,7 +68,6 @@ const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
   // добавляем полученное в div feeds
   elements.feedField.innerHTML = '';
   elements.feedField.append(divCardBorder);
-  // elements.feedField.replaceChildren(...divCardBorder)
 };
 
 const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
@@ -131,7 +130,6 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
 
 const renderButtonsAndModal = ({ postInfo }, elements) => {
   const readMoreButton = elements.modal.querySelector('.btn-primary');
-  // elements.modal.id = `modal${currentId}`;
   elements.modalTitle.textContent = postInfo.title;
   elements.modalBody.textContent = postInfo.description;
   readMoreButton.addEventListener('click', () => {
