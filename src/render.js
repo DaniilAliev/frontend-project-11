@@ -1,5 +1,3 @@
-import 'bootstrap';
-
 const renderBorder = (isValid, elements) => {
   if (isValid === false) {
     elements.input.classList.add('is-invalid');

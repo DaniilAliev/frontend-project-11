@@ -1,23 +1,26 @@
 /* eslint-disable no-use-before-define */
+import 'bootstrap';
 import onChange from 'on-change';
 import i18next from 'i18next';
-import _ from 'lodash';
 import resources from './locales/index.js';
 import validate from './validate.js';
 import {
+  parserFunc, getTitleFromParsedHTML, getDescriptionFromParsedHTML, parserError, itemsInfo,
+} from './parser.js';
+import watch from './view.js';
+import {
   renderBorder, renderErrors, renderFeeds, renderPosts, renderButtonsAndModal, renderForm,
 } from './render.js';
-import parserFunc from './parser.js';
 
 export default () => {
   const state = {
     currentURL: [],
-    isValid: null,
     form: {
-      isSubmit: false,
-      errors: '',
+      isValid: true,
+      submittingProcess: false,
+      errors: null,
     },
-    stateUI: {
+    feedsAndPosts: {
       feeds: [],
       posts: [],
       currentIdAndButton: {},
@@ -37,26 +40,14 @@ export default () => {
     modalFooterA: document.querySelector('.modal-footer a'),
   };
 
-  const defaultLang = 'ru';
-
-  const i18nextInstance = i18next.createInstance();
-
-  i18nextInstance
-    .init({
-      lng: defaultLang,
-      debug: true,
-      resources,
-    })
-    .then(() => getUrlAndValidate());
-
   const watchedState = onChange(state, (path, value) => {
-    if (path === 'isValid') {
+    if (path === 'form.isValid') {
       renderBorder(value, elements);
     }
     if (path === 'form.errors') {
       renderErrors(value, elements);
     }
-    if (path === 'form.isSubmit') {
+    if (path === 'form.submittingProcess') {
       renderForm(value, elements);
     }
     if (path === 'currentURL') {
@@ -67,89 +58,84 @@ export default () => {
 
       initAndRun();
     }
-    if (path === 'stateUI.currentIdAndButton') {
+    if (path === 'feedsAndPosts.currentIdAndButton') {
       renderButtonsAndModal(value, elements);
     }
-    if (path === 'stateUI.feeds') {
+    if (path === 'feedsAndPosts.feeds') {
       renderFeeds(value, elements, i18nextInstance);
     }
-    if (path === 'stateUI.posts') {
+    if (path === 'feedsAndPosts.posts') {
       renderPosts(value, elements, i18nextInstance);
     }
   });
-  // функция для получения урл из формы и изменения статуса isValid,
-  // добавления УРЛ если он валидный, а также контроля состояния формы
-  const getUrlAndValidate = () => {
-    elements.form.addEventListener('submit', (e) => {
-      watchedState.isValid = null;
+  // const watcher = watch(state, elements, i18nextInstance);
+  const defaultLang = 'ru';
+
+  const i18nextInstance = i18next.createInstance();
+
+  i18nextInstance
+    .init({
+      lng: defaultLang,
+      debug: true,
+      resources,
+    })
+    .then(() => elements.form.addEventListener('submit', (e) => {
+      watchedState.form.isValid = null;
       watchedState.form.errors = '';
 
       e.preventDefault();
-      watchedState.form.isSubmit = 'submitting';
+      watchedState.form.submittingProcess = 'submitting';
       const formData = new FormData(e.target);
       const url = formData.get('url');
       validate(watchedState, url, i18nextInstance)
         .then(() => {
           watchedState.currentURL.push(url);
-          watchedState.isValid = true;
+          watchedState.form.isValid = true;
         })
         .catch((error) => {
-          watchedState.isValid = false;
-          watchedState.form.isSubmit = false;
+          watchedState.form.isValid = false;
+          watchedState.form.submittingProcess = false;
           watchedState.form.errors = error.message;
         });
-    });
-  };
+    }));
+
+  
+  // функция для получения урл из формы и изменения статуса isValid,
+  // добавления УРЛ если он валидный, а также контроля состояния формы
 
   const createElementsForRender = (urlAr) => {
-    const existingFeeds = watchedState.stateUI.feeds.map((feed) => feed.titleRSS);
+    const existingFeeds = watchedState.feedsAndPosts.feeds.map((feed) => feed.titleRSS);
     // фиды
     let newPost = [];
     urlAr.forEach((url) => parserFunc(url, watchedState, i18nextInstance)
       .then((parsedHTML) => {
-        watchedState.form.isSubmit = true;
-        if (watchedState.isValid !== false) {
+        watchedState.form.submittingProcess = true;
+        if (watchedState.form.isValid !== false) {
           watchedState.form.errors = i18nextInstance.t('texts.statusMessage.successful');
         }
-        if (parsedHTML.querySelector('parsererror')) {
-          watchedState.isValid = false;
-          watchedState.form.errors = i18nextInstance.t('texts.statusMessage.noValidRss');
-        }
+        parserError(parsedHTML, watchedState, i18nextInstance);
 
-        const titleRSS = parsedHTML.querySelector('title').textContent;
-        const descriptionRss = parsedHTML.querySelector('description').textContent;
+        const titleRSS = getTitleFromParsedHTML(parsedHTML);
+        const descriptionRss = getDescriptionFromParsedHTML(parsedHTML);
 
         if (!existingFeeds.includes(titleRSS)) {
-          watchedState.stateUI.feeds.unshift({ titleRSS, descriptionRss });
+          watchedState.feedsAndPosts.feeds.unshift({ titleRSS, descriptionRss });
           existingFeeds.push(titleRSS);
         }
 
         // посты
 
         const items = parsedHTML.querySelectorAll('item');
-        items.forEach((item) => {
-          const link = item.querySelector('link').textContent;
-          const title = item.querySelector('title').textContent;
-          const description = item.querySelector('description').textContent;
-          const id = _.uniqueId();
-          const status = 'unwatched';
+        itemsInfo(newPost, items);
 
-          newPost.push({
-            id,
-            title,
-            description,
-            link,
-            status,
-          });
-        });
-
-        if (watchedState.stateUI.posts.length !== 0) {
+        if (watchedState.feedsAndPosts.posts.length !== 0) {
           newPost = newPost.filter(
-            (post) => !watchedState.stateUI.posts.some((statePost) => statePost.link === post.link),
+            (post) => !watchedState.feedsAndPosts.posts
+              .some((statePost) => statePost.link === post.link),
           );
         }
 
-        watchedState.stateUI.posts = [...newPost, ...watchedState.stateUI.posts];
+        watchedState.feedsAndPosts.posts = [...newPost, ...watchedState.feedsAndPosts.posts];
       })
       .then(() => {
         elements.postsField.addEventListener('click', (e) => {
@@ -157,15 +143,15 @@ export default () => {
             const currentId = e.target.getAttribute('data-id');
             const postInfo = {};
 
-            watchedState.stateUI.posts.forEach((post) => {
+            watchedState.feedsAndPosts.posts.forEach((post) => {
               if (post.id === currentId) {
                 postInfo.title = post.title;
                 postInfo.description = post.description;
                 postInfo.link = post.link;
               }
             });
-            watchedState.stateUI.currentIdAndButton = { postInfo };
-            watchedState.stateUI.posts.forEach((post) => {
+            watchedState.feedsAndPosts.currentIdAndButton = { postInfo };
+            watchedState.feedsAndPosts.posts.forEach((post) => {
               if (post.id === currentId) {
                 post.status = 'watched';
               }
