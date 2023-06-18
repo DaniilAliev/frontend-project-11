@@ -78,9 +78,9 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     a.dataset.id = value.id;
-    if (value.status === 'watched') {
-      a.classList.add('text-secondary');
-    }
+    // if (value.status === 'watched') {
+    //   a.classList.add('text-secondary');
+    // }
 
     const button = document.createElement('button');
     button.textContent = i18nextInstance.t('texts.rssFeed.watch');
@@ -135,9 +135,23 @@ const renderButtonsAndModal = ({ postInfo }, elements) => {
   });
 };
 
+const renderViewed = (set) => {
+  const setAr = [...set];
+  const links = document.querySelectorAll('.fw-bold');
+  links.forEach((a) => {
+    setAr.forEach((num) => {
+      if (a.dataset.id === num) {
+        a.classList.add('text-secondary');
+        console.log(a);
+      }
+    });
+  });
+};
+
 export { renderBorder };
 export { renderErrors };
 export { renderFeeds };
 export { renderPosts };
 export { renderButtonsAndModal };
 export { renderForm };
+export { renderViewed };
