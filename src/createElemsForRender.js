@@ -3,22 +3,23 @@ import {
   getTitleFromParsedHTML, getDescriptionFromParsedHTML, parserError, itemsInfo,
 } from './parser.js';
 
-const createElementsForRender = (url, watchedState, i18nextInstance, elements) => {
+const createElementsForRender = (url, watchedState, i18nextInstance, elements, existingUrls) => {
   const existingFeeds = watchedState.feedsAndPosts.feeds.map((feed) => feed.titleRSS);
   // фиды
   let newPost = [];
   parserFunc(url, watchedState, i18nextInstance)
     .then((parsedHTML) => {
-      parserError(parsedHTML, watchedState, i18nextInstance, url);
+      parserError(parsedHTML, watchedState, i18nextInstance, existingUrls, url);
       if (watchedState.form.isValid !== false) {
         watchedState.form.errors = i18nextInstance.t('texts.statusMessage.successful');
       }
 
       const titleRSS = getTitleFromParsedHTML(parsedHTML);
       const descriptionRss = getDescriptionFromParsedHTML(parsedHTML);
+      const link = url;
 
       if (!existingFeeds.includes(titleRSS)) {
-        watchedState.feedsAndPosts.feeds.unshift({ titleRSS, descriptionRss });
+        watchedState.feedsAndPosts.feeds.unshift({ titleRSS, descriptionRss, link });
         existingFeeds.push(titleRSS);
       }
 
@@ -58,9 +59,9 @@ const createElementsForRender = (url, watchedState, i18nextInstance, elements) =
     });
 };
 
-const updatePosts = (urlAr, watchedState, i18nextInstance) => {
+const updatePosts = (feeds, watchedState, i18nextInstance) => {
   let newPost = [];
-  urlAr.forEach((url) => parserFunc(url, watchedState, i18nextInstance)
+  feeds.forEach((feed) => parserFunc(feed.link, watchedState, i18nextInstance)
     .then((parsedHTML) => {
       const items = parsedHTML.querySelectorAll('item');
       itemsInfo(newPost, items);

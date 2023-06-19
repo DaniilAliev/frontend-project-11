@@ -13,14 +13,6 @@ const watch = (state, elements, i18nextInstance) => {
     if (path === 'form.errors') {
       renderErrors(value, elements, i18nextInstance);
     }
-    if (path === 'existingUrls') {
-      const initAndRun = () => {
-        updatePosts(value, watchedState, i18nextInstance);
-        setTimeout(initAndRun, 5000);
-      };
-
-      initAndRun();
-    }
     if (path === 'form.submittingProcess') {
       renderForm(value, elements);
     }
@@ -29,6 +21,13 @@ const watch = (state, elements, i18nextInstance) => {
     }
     if (path === 'feedsAndPosts.feeds') {
       renderFeeds(value, elements, i18nextInstance);
+
+      const initAndRun = () => {
+        updatePosts(value, watchedState, i18nextInstance);
+        setTimeout(initAndRun, 5000);
+      };
+
+      initAndRun();
     }
     if (path === 'feedsAndPosts.watchedPostsId') {
       renderViewed(value);

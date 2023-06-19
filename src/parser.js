@@ -14,20 +14,21 @@ const parserFunc = (url, watchedState, i18nextInstance) => axios
     watchedState.form.errors = i18nextInstance.t(
       'texts.statusMessage.networkError',
     );
+    watchedState.form.submittingProcess = false;
   });
 
 const getTitleFromParsedHTML = (parsedHTML) => parsedHTML.querySelector('title').textContent;
 
 const getDescriptionFromParsedHTML = (parsedHTML) => parsedHTML.querySelector('description').textContent;
 
-const parserError = (parsedHTML, watchedState, i18nextInstance, url) => {
+const parserError = (parsedHTML, watchedState, i18nextInstance, existingUrls, url) => {
   if (parsedHTML.querySelector('parsererror')) {
     watchedState.form.isValid = false;
     watchedState.form.submittingProcess = false;
     watchedState.form.errors = i18nextInstance.t('texts.statusMessage.noValidRss');
   } else {
     watchedState.form.submittingProcess = true;
-    watchedState.existingUrls.push(url);
+    existingUrls.push(url);
   }
 };
 

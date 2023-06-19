@@ -7,7 +7,6 @@ import watch from './view.js';
 
 export default () => {
   const state = {
-    existingUrls: [],
     form: {
       isValid: true,
       submittingProcess: false,
@@ -34,6 +33,8 @@ export default () => {
     modalFooterA: document.querySelector('.modal-footer a'),
   };
 
+  const existingUrls = [];
+
   const defaultLang = 'ru';
 
   const i18nextInstance = i18next.createInstance();
@@ -53,10 +54,10 @@ export default () => {
       watchedState.form.submittingProcess = 'submitting';
       const formData = new FormData(e.target);
       const url = formData.get('url');
-      validate(watchedState.existingUrls, url)
+      validate(existingUrls, url)
         .then(() => {
           watchedState.form.isValid = true;
-          createElementsForRender(url, watchedState, i18nextInstance, elements);
+          createElementsForRender(url, watchedState, i18nextInstance, elements, existingUrls);
         })
         .catch((error) => {
           watchedState.form.isValid = false;
