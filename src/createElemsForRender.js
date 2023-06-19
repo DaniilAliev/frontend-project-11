@@ -3,18 +3,16 @@ import {
   getTitleFromParsedHTML, getDescriptionFromParsedHTML, parserError, itemsInfo,
 } from './parser.js';
 
-const createElementsForRender = (urlAr, watchedState, i18nextInstance, elements) => {
+const createElementsForRender = (url, watchedState, i18nextInstance, elements) => {
   const existingFeeds = watchedState.feedsAndPosts.feeds.map((feed) => feed.titleRSS);
   // фиды
   let newPost = [];
-  urlAr.forEach((urlParse) => parserFunc(urlParse, watchedState, i18nextInstance)
+  parserFunc(url, watchedState, i18nextInstance)
     .then((parsedHTML) => {
-      console.log(parsedHTML);
-      watchedState.form.submittingProcess = true;
+      parserError(parsedHTML, watchedState, i18nextInstance, url);
       if (watchedState.form.isValid !== false) {
         watchedState.form.errors = i18nextInstance.t('texts.statusMessage.successful');
       }
-      parserError(parsedHTML, watchedState, i18nextInstance);
 
       const titleRSS = getTitleFromParsedHTML(parsedHTML);
       const descriptionRss = getDescriptionFromParsedHTML(parsedHTML);
@@ -56,7 +54,25 @@ const createElementsForRender = (urlAr, watchedState, i18nextInstance, elements)
         }
       });
     })
-    .catch(() => {}));
+    .catch(() => {
+    });
 };
 
-export default createElementsForRender;
+const updatePosts = (urlAr, watchedState, i18nextInstance) => {
+  let newPost = [];
+  urlAr.forEach((url) => parserFunc(url, watchedState, i18nextInstance)
+    .then((parsedHTML) => {
+      const items = parsedHTML.querySelectorAll('item');
+      itemsInfo(newPost, items);
+
+      if (watchedState.feedsAndPosts.posts.length !== 0) {
+        newPost = newPost.filter(
+          (post) => !watchedState.feedsAndPosts.posts
+            .some((statePost) => statePost.link === post.link),
+        );
+      }
+
+      watchedState.feedsAndPosts.posts = [...newPost, ...watchedState.feedsAndPosts.posts];
+    }));
+};
+export { createElementsForRender, updatePosts };

@@ -10,7 +10,7 @@ const parserFunc = (url, watchedState, i18nextInstance) => axios
     return parser.parseFromString(response.data.contents, 'text/xml');
   })
   .catch(() => {
-    watchedState.isValid = false;
+    watchedState.form.isValid = false;
     watchedState.form.errors = i18nextInstance.t(
       'texts.statusMessage.networkError',
     );
@@ -20,10 +20,14 @@ const getTitleFromParsedHTML = (parsedHTML) => parsedHTML.querySelector('title')
 
 const getDescriptionFromParsedHTML = (parsedHTML) => parsedHTML.querySelector('description').textContent;
 
-const parserError = (parsedHTML, watchedState, i18nextInstance) => {
+const parserError = (parsedHTML, watchedState, i18nextInstance, url) => {
   if (parsedHTML.querySelector('parsererror')) {
     watchedState.form.isValid = false;
+    watchedState.form.submittingProcess = false;
     watchedState.form.errors = i18nextInstance.t('texts.statusMessage.noValidRss');
+  } else {
+    watchedState.form.submittingProcess = true;
+    watchedState.existingUrls.push(url);
   }
 };
 

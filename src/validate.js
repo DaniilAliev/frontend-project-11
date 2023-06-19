@@ -1,13 +1,13 @@
 import * as yup from 'yup';
 
-const validate = (urlAr, url, i18nextInstance) => {
+const validate = (urlAr, url) => {
   yup.setLocale({
     mixed: {
-      notOneOf: i18nextInstance.t('texts.statusMessage.existing'),
+      notOneOf: 'texts.statusMessage.existing',
     },
     string: {
-      required: i18nextInstance.t('texts.statusMessage.notEmpty'),
-      url: i18nextInstance.t('texts.statusMessage.invalid'),
+      required: 'texts.statusMessage.notEmpty',
+      url: 'texts.statusMessage.invalid',
     },
   });
 

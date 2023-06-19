@@ -4,8 +4,6 @@ const renderBorder = (isValid, elements) => {
     elements.errorField.classList.remove('text-success');
     elements.errorField.classList.add('text-danger');
   } else if (isValid === true) {
-    elements.form.reset();
-    elements.input.focus();
     elements.input.classList.remove('is-invalid');
     elements.errorField.classList.remove('text-danger');
     elements.errorField.classList.add('text-success');
@@ -16,13 +14,17 @@ const renderForm = (value, elements) => {
   if (value === 'submitting') {
     elements.submitButton.disabled = true;
     elements.errorField.textContent = '';
-  } else {
+  } else if (value === true) {
+    elements.submitButton.disabled = false;
+    elements.form.reset();
+    elements.input.focus();
+  } else if (value === false) {
     elements.submitButton.disabled = false;
   }
 };
 
-const renderErrors = (error, elements) => {
-  elements.errorField.textContent = error;
+const renderErrors = (error, elements, i18nextInstance) => {
+  elements.errorField.textContent = i18nextInstance.t(`${error}`);
 };
 
 const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
@@ -139,7 +141,6 @@ const renderViewed = (set) => {
     setAr.forEach((num) => {
       if (a.dataset.id === num) {
         a.classList.add('text-secondary');
-        console.log(a);
       }
     });
   });

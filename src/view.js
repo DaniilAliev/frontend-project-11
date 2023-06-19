@@ -3,6 +3,7 @@ import {
   renderBorder, renderErrors, renderFeeds, renderPosts, renderButtonsAndModal, renderForm,
   renderViewed,
 } from './render.js';
+import { updatePosts } from './createElemsForRender.js';
 
 const watch = (state, elements, i18nextInstance) => {
   const watchedState = onChange(state, (path, value) => {
@@ -10,7 +11,15 @@ const watch = (state, elements, i18nextInstance) => {
       renderBorder(value, elements);
     }
     if (path === 'form.errors') {
-      renderErrors(value, elements);
+      renderErrors(value, elements, i18nextInstance);
+    }
+    if (path === 'existingUrls') {
+      const initAndRun = () => {
+        updatePosts(value, watchedState, i18nextInstance);
+        setTimeout(initAndRun, 5000);
+      };
+
+      initAndRun();
     }
     if (path === 'form.submittingProcess') {
       renderForm(value, elements);
