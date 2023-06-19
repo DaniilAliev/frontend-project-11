@@ -4,7 +4,7 @@ import {
   renderViewed,
 } from './render.js';
 
-const watch = (state, elements, i18nextInstance, createElementsForRender) => {
+const watch = (state, elements, i18nextInstance) => {
   const watchedState = onChange(state, (path, value) => {
     if (path === 'form.isValid') {
       renderBorder(value, elements);
@@ -14,14 +14,6 @@ const watch = (state, elements, i18nextInstance, createElementsForRender) => {
     }
     if (path === 'form.submittingProcess') {
       renderForm(value, elements);
-    }
-    if (path === 'currentURL') {
-      const initAndRun = () => {
-        createElementsForRender(value);
-        setTimeout(initAndRun, 5000);
-      };
-
-      initAndRun();
     }
     if (path === 'feedsAndPosts.currentIdAndButton') {
       renderButtonsAndModal(value, elements);

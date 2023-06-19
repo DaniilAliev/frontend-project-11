@@ -33,18 +33,23 @@ const itemsInfo = (newPost, items) => {
     const title = item.querySelector('title').textContent;
     const description = item.querySelector('description').textContent;
     const id = _.uniqueId();
-    const status = 'unwatched';
 
     newPost.push({
       id,
       title,
       description,
       link,
-      status,
     });
   });
 };
 
+const initAndRun = (urlParse, watchedState, i18nextInstance) => parserFunc(urlParse, watchedState, i18nextInstance)
+  .then((parsedHTML) => {
+    setTimeout(() => initAndRun(urlParse, watchedState, i18nextInstance), 5000);
+    return parsedHTML;
+  });
+
 export {
   parserFunc, getTitleFromParsedHTML, getDescriptionFromParsedHTML, parserError, itemsInfo,
+  initAndRun,
 };

@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-const validate = (state, url, i18nextInstance) => {
+const validate = (urlAr, url, i18nextInstance) => {
   yup.setLocale({
     mixed: {
       notOneOf: i18nextInstance.t('texts.statusMessage.existing'),
@@ -11,7 +11,7 @@ const validate = (state, url, i18nextInstance) => {
     },
   });
 
-  const schema = yup.string().url().notOneOf(state.currentURL);
+  const schema = yup.string().url().notOneOf(urlAr);
   return schema.validate(url);
 };
 

@@ -78,9 +78,6 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     a.dataset.id = value.id;
-    // if (value.status === 'watched') {
-    //   a.classList.add('text-secondary');
-    // }
 
     const button = document.createElement('button');
     button.textContent = i18nextInstance.t('texts.rssFeed.watch');
