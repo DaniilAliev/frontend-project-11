@@ -43,7 +43,11 @@ const itemsInfo = (newPost, items) => {
   });
 };
 
-const initAndRun = (urlParse, watchedState, i18nextInstance) => parserFunc(urlParse, watchedState, i18nextInstance)
+const initAndRun = (urlParse, watchedState, i18nextInstance) => parserFunc(
+  urlParse,
+  watchedState,
+  i18nextInstance,
+)
   .then((parsedHTML) => {
     setTimeout(() => initAndRun(urlParse, watchedState, i18nextInstance), 5000);
     return parsedHTML;
