@@ -33,7 +33,7 @@ const watch = (state, elements, i18nextInstance) => {
       renderViewed(value);
     }
     if (path === 'feedsAndPosts.posts') {
-      renderPosts(value, elements, i18nextInstance);
+      renderPosts(value, elements, i18nextInstance, watchedState.feedsAndPosts.watchedPostsId);
     }
   });
   return watchedState;

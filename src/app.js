@@ -1,4 +1,5 @@
 import 'bootstrap';
+import * as yup from 'yup';
 import i18next from 'i18next';
 import resources from './locales/index.js';
 import validate from './validate.js';
@@ -42,27 +43,39 @@ export default () => {
   i18nextInstance
     .init({
       lng: defaultLang,
-      debug: true,
+      debug: false,
       resources,
     })
-    .then(() => elements.form.addEventListener('submit', (e) => {
-      const watchedState = watch(state, elements, i18nextInstance);
-      watchedState.form.isValid = null;
-      watchedState.form.errors = '';
+    .then(() => {
+      yup.setLocale({
+        mixed: {
+          notOneOf: 'texts.statusMessage.existing',
+        },
+        string: {
+          required: 'texts.statusMessage.notEmpty',
+          url: 'texts.statusMessage.invalid',
+        },
+      });
 
-      e.preventDefault();
-      watchedState.form.submittingProcess = 'submitting';
-      const formData = new FormData(e.target);
-      const url = formData.get('url');
-      validate(existingUrls, url)
-        .then(() => {
-          watchedState.form.isValid = true;
-          createElementsForRender(url, watchedState, i18nextInstance, elements, existingUrls);
-        })
-        .catch((error) => {
-          watchedState.form.isValid = false;
-          watchedState.form.submittingProcess = false;
-          watchedState.form.errors = error.message;
-        });
-    }));
+      elements.form.addEventListener('submit', (e) => {
+        const watchedState = watch(state, elements, i18nextInstance);
+        watchedState.form.isValid = null;
+        watchedState.form.errors = '';
+
+        e.preventDefault();
+        watchedState.form.submittingProcess = 'submitting';
+        const formData = new FormData(e.target);
+        const url = formData.get('url');
+        validate(existingUrls, url)
+          .then(() => {
+            watchedState.form.isValid = true;
+            createElementsForRender(url, watchedState, i18nextInstance, elements, existingUrls);
+          })
+          .catch((error) => {
+            watchedState.form.isValid = false;
+            watchedState.form.submittingProcess = false;
+            watchedState.form.errors = error.message;
+          });
+      });
+    });
 };

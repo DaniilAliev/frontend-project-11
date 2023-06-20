@@ -1,3 +1,11 @@
+const addTextSecondary = (set, a) => {
+  set.forEach((num) => {
+    if (a.dataset.id === num) {
+      a.classList.add('text-secondary');
+    }
+  });
+};
+
 const renderBorder = (isValid, elements) => {
   if (isValid === false) {
     elements.input.classList.add('is-invalid');
@@ -70,7 +78,7 @@ const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
   elements.feedField.append(divCardBorder);
 };
 
-const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
+const renderPosts = (values, elements, i18nextInstance, set, newPosts = []) => {
   // Посты
   values.forEach((value) => {
     const a = document.createElement('a');
@@ -80,6 +88,8 @@ const renderPosts = (values, elements, i18nextInstance, newPosts = []) => {
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
     a.dataset.id = value.id;
+
+    addTextSecondary(set, a);
 
     const button = document.createElement('button');
     button.textContent = i18nextInstance.t('texts.rssFeed.watch');
@@ -138,11 +148,7 @@ const renderViewed = (set) => {
   const setAr = [...set];
   const links = document.querySelectorAll('.fw-bold');
   links.forEach((a) => {
-    setAr.forEach((num) => {
-      if (a.dataset.id === num) {
-        a.classList.add('text-secondary');
-      }
-    });
+    addTextSecondary(setAr, a);
   });
 };
 
