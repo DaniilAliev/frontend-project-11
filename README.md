@@ -5,7 +5,7 @@
 ![RSS Agregator](/pictures/screenshot.jpg)
 
 ## RSS Agregator
-RSS Agregator is a service for agregting RSS feeds that helps you to easily read unlimited numbers of feeds from different sources and blogs and do updates of them. Check the RSS Agregator [here](https://frontend-project-11-3xpvy6fuw-daniilaliev.vercel.app/)
+RSS Agregator is a service for agregating RSS feeds that helps you to easily read unlimited numbers of feeds from different sources and blogs and do updates of them. Check the RSS Agregator [here](https://frontend-project-11-3xpvy6fuw-daniilaliev.vercel.app/)
 
 - Installation:
 make install
