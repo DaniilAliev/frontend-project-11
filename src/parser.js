@@ -1,25 +1,10 @@
 import axios from 'axios';
 import _ from 'lodash';
 
-const parserFunc = (url, watchedState, i18nextInstance) => axios
+const getDataFromUrl = (url) => axios
   .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(
     url,
-  )}`, { timeout: 10000 })
-  .then((response) => {
-    const parser = new DOMParser();
-    return parser.parseFromString(response.data.contents, 'text/xml');
-  })
-  .catch(() => {
-    watchedState.form.isValid = false;
-    watchedState.form.errors = i18nextInstance.t(
-      'texts.statusMessage.networkError',
-    );
-    watchedState.form.submittingProcess = false;
-  });
-
-const getTitleFromParsedHTML = (parsedHTML) => parsedHTML.querySelector('title').textContent;
-
-const getDescriptionFromParsedHTML = (parsedHTML) => parsedHTML.querySelector('description').textContent;
+  )}`, { timeout: 45000 });
 
 const parserError = (parsedHTML, watchedState, i18nextInstance, existingUrls, url) => {
   if (parsedHTML.querySelector('parsererror')) {
@@ -30,6 +15,25 @@ const parserError = (parsedHTML, watchedState, i18nextInstance, existingUrls, ur
     watchedState.form.submittingProcess = true;
     existingUrls.push(url);
   }
+};
+
+const parserFunc = (response, watchedState, i18nextInstance, existingUrls, url) => {
+  const parser = new DOMParser();
+  const parsedData = parser.parseFromString(response.data.contents, 'text/xml');
+
+  parserError(parsedData, watchedState, i18nextInstance, existingUrls, url);
+
+  if (watchedState.form.isValid !== false) {
+    watchedState.form.errors = i18nextInstance.t('texts.statusMessage.successful');
+  }
+
+  const titleRSS = parsedData.querySelector('title').textContent;
+  const descriptionRss = parsedData.querySelector('description').textContent;
+  const link = url;
+
+  return {
+    parsedData, titleRSS, descriptionRss, link,
+  };
 };
 
 const itemsInfo = (newPost, items) => {
@@ -48,17 +52,6 @@ const itemsInfo = (newPost, items) => {
   });
 };
 
-const initAndRun = (urlParse, watchedState, i18nextInstance) => parserFunc(
-  urlParse,
-  watchedState,
-  i18nextInstance,
-)
-  .then((parsedHTML) => {
-    setTimeout(() => initAndRun(urlParse, watchedState, i18nextInstance), 5000);
-    return parsedHTML;
-  });
-
 export {
-  parserFunc, getTitleFromParsedHTML, getDescriptionFromParsedHTML, parserError, itemsInfo,
-  initAndRun,
+  parserFunc, parserError, itemsInfo, getDataFromUrl,
 };

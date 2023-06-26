@@ -3,7 +3,6 @@ import {
   renderBorder, renderErrors, renderFeeds, renderPosts, renderButtonsAndModal, renderForm,
   renderViewed,
 } from './render.js';
-import { updatePosts } from './createElemsForRender.js';
 
 const watch = (state, elements, i18nextInstance) => {
   const watchedState = onChange(state, (path, value) => {
@@ -20,14 +19,7 @@ const watch = (state, elements, i18nextInstance) => {
       renderButtonsAndModal(value, elements);
     }
     if (path === 'feedsAndPosts.feeds') {
-      renderFeeds(value, elements, i18nextInstance);
-
-      const initAndRun = () => {
-        updatePosts(value, watchedState, i18nextInstance);
-        setTimeout(initAndRun, 5000);
-      };
-
-      initAndRun();
+      renderFeeds(value, elements, i18nextInstance, watchedState);
     }
     if (path === 'feedsAndPosts.watchedPostsId') {
       renderViewed(value);

@@ -35,7 +35,7 @@ const renderErrors = (error, elements, i18nextInstance) => {
   elements.errorField.textContent = i18nextInstance.t(`${error}`);
 };
 
-const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
+const renderFeeds = (value, elements, i18nextInstance, watchedState, newFeed = []) => {
   value.forEach((item) => {
     const h3Feed = document.createElement('h3');
     h3Feed.classList.add('h6', 'm-0');
@@ -152,10 +152,7 @@ const renderViewed = (set) => {
   });
 };
 
-export { renderBorder };
-export { renderErrors };
-export { renderFeeds };
-export { renderPosts };
-export { renderButtonsAndModal };
-export { renderForm };
-export { renderViewed };
+export {
+  renderBorder, renderErrors, renderFeeds, renderPosts, renderButtonsAndModal, renderForm,
+  renderViewed,
+};

@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import resources from './locales/index.js';
 import validate from './validate.js';
-import { createElementsForRender } from './createElemsForRender.js';
+import { createElementsForRender, updatePosts } from './createElemsForRender.js';
 import watch from './view.js';
 
 export default () => {
@@ -57,6 +57,24 @@ export default () => {
         },
       });
 
+      elements.postsField.addEventListener('click', (eViewed) => {
+        const watchedState = watch(state, elements, i18nextInstance);
+        if (eViewed.target.tagName.toUpperCase() === 'BUTTON' || eViewed.target.tagName.toUpperCase() === 'A') {
+          const currentId = eViewed.target.getAttribute('data-id');
+          watchedState.feedsAndPosts.watchedPostsId.add(currentId);
+          const postInfo = {};
+
+          watchedState.feedsAndPosts.posts.forEach((post) => {
+            if (post.id === currentId) {
+              postInfo.title = post.title;
+              postInfo.description = post.description;
+              postInfo.link = post.link;
+            }
+          });
+          watchedState.feedsAndPosts.currentIdAndButton = { postInfo };
+        }
+      });
+
       elements.form.addEventListener('submit', (e) => {
         const watchedState = watch(state, elements, i18nextInstance);
         watchedState.form.isValid = null;
@@ -69,7 +87,20 @@ export default () => {
         validate(existingUrls, url)
           .then(() => {
             watchedState.form.isValid = true;
-            createElementsForRender(url, watchedState, i18nextInstance, elements, existingUrls);
+            createElementsForRender(url, watchedState, i18nextInstance, existingUrls);
+          })
+          .then(() => {
+            const initAndRun = () => {
+              updatePosts(
+                watchedState.feedsAndPosts.feeds,
+                watchedState,
+                i18nextInstance,
+                existingUrls,
+              );
+              setTimeout(initAndRun, 5000);
+            };
+
+            initAndRun();
           })
           .catch((error) => {
             watchedState.form.isValid = false;
