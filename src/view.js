@@ -9,23 +9,23 @@ const watch = (state, elements, i18nextInstance) => {
     if (path === 'form.isValid') {
       renderBorder(value, elements);
     }
-    if (path === 'form.errors') {
+    if (path === 'form.error') {
       renderErrors(value, elements, i18nextInstance);
     }
-    if (path === 'form.submittingProcess') {
-      renderForm(value, elements);
+    if (path === 'form.status') {
+      renderForm(value, elements, watchedState.form);
     }
-    if (path === 'feedsAndPosts.currentIdAndButton') {
-      renderButtonsAndModal(value, elements);
+    if (path === 'postIdInModal') {
+      renderButtonsAndModal(value, elements, watchedState.posts);
     }
-    if (path === 'feedsAndPosts.feeds') {
+    if (path === 'feeds') {
       renderFeeds(value, elements, i18nextInstance, watchedState);
     }
-    if (path === 'feedsAndPosts.watchedPostsId') {
+    if (path === 'ui.watchedPostsId') {
       renderViewed(value);
     }
-    if (path === 'feedsAndPosts.posts') {
-      renderPosts(value, elements, i18nextInstance, watchedState.feedsAndPosts.watchedPostsId);
+    if (path === 'posts') {
+      renderPosts(value, elements, i18nextInstance, watchedState.ui.watchedPostsId);
     }
   });
   return watchedState;

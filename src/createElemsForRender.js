@@ -1,72 +1,86 @@
-import {
-  parserFunc, itemsInfo, getDataFromUrl,
-} from './parser.js';
+import { parseRssContent } from './parser.js';
+import getDataFromUrl from './getDataFromUrl.js';
 
-const networkError = (watchedState, i18nextInstance) => {
+const networkError = (watchedState) => {
   watchedState.form.isValid = false;
-  watchedState.form.errors = i18nextInstance.t(
-    'texts.statusMessage.networkError',
-  );
-  watchedState.form.submittingProcess = false;
+  watchedState.form.error = 'texts.statusMessage.networkError';
+  watchedState.form.status = 'failed';
 };
 
-const createElementsForRender = (url, watchedState, i18nextInstance, existingUrls) => {
-  const existingFeeds = watchedState.feedsAndPosts.feeds.map((feed) => feed.titleRSS);
+const novalidRssError = (watchedState) => {
+  watchedState.form.isValid = false;
+  watchedState.form.status = 'failed';
+  watchedState.form.error = 'texts.statusMessage.noValidRss';
+};
+
+const errorsCatcher = (e, watchedState) => {
+  if (e.message === 'noValidRss') {
+    novalidRssError(watchedState);
+  } else {
+    networkError(watchedState);
+  }
+};
+
+const updatePosts = (watchedState) => {
+  const update = () => {
+    const promises = watchedState.feeds.map((feed) => getDataFromUrl(feed.link)
+      .then((response) => {
+        const { resultPosts } = parseRssContent(response, feed.link);
+        let newPost = resultPosts;
+
+        if (watchedState.posts.length !== 0) {
+          newPost = newPost.filter(
+            (post) => !watchedState.posts
+              .some((statePost) => statePost.link === post.link),
+          );
+        }
+
+        watchedState.posts = [...newPost, ...watchedState.posts];
+      })
+      .catch((e) => {
+        errorsCatcher(e, watchedState);
+      }));
+
+    Promise.allSettled(promises).then(() => setTimeout(update, 5000));
+  };
+
+  update();
+};
+
+const createElementsForRender = (url, watchedState, existingUrls) => {
+  const existingFeeds = watchedState.feeds.map((feed) => feed.titleRSS);
   let newPost = [];
   getDataFromUrl(url)
-    .catch(() => {
-      networkError(watchedState, i18nextInstance);
-    })
-    .then((response) => parserFunc(response, watchedState, i18nextInstance, existingUrls, url))
-    .then(({
-      parsedData, titleRSS, descriptionRss, link,
-    }) => {
-      if (!existingFeeds.includes(titleRSS)) {
-        watchedState.feedsAndPosts.feeds.unshift({ titleRSS, descriptionRss, link });
+    .then((response) => {
+      const {
+        titleRSS, descriptionRss, link, resultPosts,
+      } = parseRssContent(response, url);
+      watchedState.form.status = 'succeed';
+      existingUrls.push(url);
+
+      if (watchedState.form.isValid !== false) {
+        watchedState.form.error = 'texts.statusMessage.successful';
+      }
+
+      if (!existingFeeds.includes(link)) {
+        watchedState.feeds.unshift({ titleRSS, descriptionRss, link });
         existingFeeds.push(titleRSS);
       }
 
-      const items = parsedData.querySelectorAll('item');
-      itemsInfo(newPost, items);
+      newPost = resultPosts;
 
-      if (watchedState.feedsAndPosts.posts.length !== 0) {
+      if (watchedState.posts.length !== 0) {
         newPost = newPost.filter(
-          (post) => !watchedState.feedsAndPosts.posts
+          (post) => !watchedState.posts
             .some((statePost) => statePost.link === post.link),
         );
       }
 
-      watchedState.feedsAndPosts.posts = [...newPost, ...watchedState.feedsAndPosts.posts];
+      watchedState.posts = [...newPost, ...watchedState.posts];
+    })
+    .catch((e) => {
+      errorsCatcher(e, watchedState);
     });
 };
 
-const updatePosts = (feeds, watchedState, i18nextInstance, existingUrls) => {
-  const promises = feeds.map((feed) => getDataFromUrl(feed.link)
-    .catch(() => {
-      networkError(watchedState, i18nextInstance);
-    })
-    .then((response) => parserFunc(
-      response,
-      watchedState,
-      i18nextInstance,
-      existingUrls,
-      feed.link,
-    ))
-    .then(({ parsedData }) => {
-      const items = parsedData.querySelectorAll('item');
-      let newPost = [];
-      itemsInfo(newPost, items);
-
-      if (watchedState.feedsAndPosts.posts.length !== 0) {
-        newPost = newPost.filter(
-          (post) => !watchedState.feedsAndPosts.posts
-            .some((statePost) => statePost.link === post.link),
-        );
-      }
-
-      watchedState.feedsAndPosts.posts = [...newPost, ...watchedState.feedsAndPosts.posts];
-    }));
-
-  Promise.allSettled(promises);
-};
 export { createElementsForRender, updatePosts };

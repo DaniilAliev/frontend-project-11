@@ -1,57 +1,40 @@
-import axios from 'axios';
 import _ from 'lodash';
 
-const getDataFromUrl = (url) => axios
-  .get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(
-    url,
-  )}`, { timeout: 45000 });
-
-const parserError = (parsedHTML, watchedState, i18nextInstance, existingUrls, url) => {
+const parserError = (parsedHTML) => {
   if (parsedHTML.querySelector('parsererror')) {
-    watchedState.form.isValid = false;
-    watchedState.form.submittingProcess = false;
-    watchedState.form.errors = i18nextInstance.t('texts.statusMessage.noValidRss');
-  } else {
-    watchedState.form.submittingProcess = true;
-    existingUrls.push(url);
+    throw new Error('noValidRss');
   }
 };
 
-const parserFunc = (response, watchedState, i18nextInstance, existingUrls, url) => {
+const parseRssContent = (response, url) => {
   const parser = new DOMParser();
-  const parsedData = parser.parseFromString(response.data.contents, 'text/xml');
+  const parsedData = parser.parseFromString(response, 'text/xml');
 
-  parserError(parsedData, watchedState, i18nextInstance, existingUrls, url);
-
-  if (watchedState.form.isValid !== false) {
-    watchedState.form.errors = i18nextInstance.t('texts.statusMessage.successful');
-  }
+  parserError(parsedData);
 
   const titleRSS = parsedData.querySelector('title').textContent;
   const descriptionRss = parsedData.querySelector('description').textContent;
-  const link = url;
 
-  return {
-    parsedData, titleRSS, descriptionRss, link,
-  };
-};
+  const items = parsedData.querySelectorAll('item');
 
-const itemsInfo = (newPost, items) => {
-  items.forEach((item) => {
+  const resultPosts = Array.from(items).map((item) => {
     const link = item.querySelector('link').textContent;
     const title = item.querySelector('title').textContent;
     const description = item.querySelector('description').textContent;
     const id = _.uniqueId();
-
-    newPost.push({
+    return {
       id,
       title,
       description,
       link,
-    });
+    };
   });
+
+  return {
+    titleRSS, descriptionRss, link: url, resultPosts,
+  };
 };
 
 export {
-  parserFunc, parserError, itemsInfo, getDataFromUrl,
+  parseRssContent, parserError,
 };

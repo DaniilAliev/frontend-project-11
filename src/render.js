@@ -18,15 +18,16 @@ const renderBorder = (isValid, elements) => {
   }
 };
 
-const renderForm = (value, elements) => {
-  if (value === 'submitting') {
+const renderForm = (value, elements, form) => {
+  if (value === 'loading') {
     elements.submitButton.disabled = true;
     elements.errorField.textContent = '';
-  } else if (value === true) {
+    form.isValid = false;
+  } else if (value === 'succeed') {
     elements.submitButton.disabled = false;
     elements.form.reset();
     elements.input.focus();
-  } else if (value === false) {
+  } else if (value === 'failed') {
     elements.submitButton.disabled = false;
   }
 };
@@ -135,12 +136,13 @@ const renderPosts = (values, elements, i18nextInstance, set, newPosts = []) => {
   });
 };
 
-const renderButtonsAndModal = ({ postInfo }, elements) => {
+const renderButtonsAndModal = (postId, elements, posts) => {
   const readMoreButton = elements.modal.querySelector('.btn-primary');
-  elements.modalTitle.textContent = postInfo.title;
-  elements.modalBody.textContent = postInfo.description;
+  const post = posts.find((item) => item.id === postId);
+  elements.modalTitle.textContent = post.title;
+  elements.modalBody.textContent = post.description;
   readMoreButton.addEventListener('click', () => {
-    window.open(postInfo.link, '_blank');
+    window.open(post.link, '_blank');
   });
 };
 

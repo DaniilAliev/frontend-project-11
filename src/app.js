@@ -10,15 +10,18 @@ export default () => {
   const state = {
     form: {
       isValid: true,
-      submittingProcess: false,
-      errors: null,
+      status: null,
+      error: null,
     },
+    feeds: [],
+    posts: [],
     feedsAndPosts: {
-      feeds: [],
-      posts: [],
-      watchedPostsId: new Set(),
       currentIdAndButton: {},
     },
+    ui: {
+      watchedPostsId: new Set(),
+    },
+    postIdInModal: '',
   };
 
   const elements = {
@@ -61,52 +64,32 @@ export default () => {
         const watchedState = watch(state, elements, i18nextInstance);
         if (eViewed.target.tagName.toUpperCase() === 'BUTTON' || eViewed.target.tagName.toUpperCase() === 'A') {
           const currentId = eViewed.target.getAttribute('data-id');
-          watchedState.feedsAndPosts.watchedPostsId.add(currentId);
-          const postInfo = {};
-
-          watchedState.feedsAndPosts.posts.forEach((post) => {
-            if (post.id === currentId) {
-              postInfo.title = post.title;
-              postInfo.description = post.description;
-              postInfo.link = post.link;
-            }
-          });
-          watchedState.feedsAndPosts.currentIdAndButton = { postInfo };
+          watchedState.ui.watchedPostsId.add(currentId);
+          watchedState.postIdInModal = currentId;
         }
       });
 
       elements.form.addEventListener('submit', (e) => {
         const watchedState = watch(state, elements, i18nextInstance);
-        watchedState.form.isValid = null;
-        watchedState.form.errors = '';
+
+        watchedState.form.error = null;
 
         e.preventDefault();
-        watchedState.form.submittingProcess = 'submitting';
+        watchedState.form.status = 'loading';
         const formData = new FormData(e.target);
         const url = formData.get('url');
-        validate(existingUrls, url)
+        validate(watchedState.feeds, url)
           .then(() => {
             watchedState.form.isValid = true;
-            createElementsForRender(url, watchedState, i18nextInstance, existingUrls);
-          })
-          .then(() => {
-            const initAndRun = () => {
-              updatePosts(
-                watchedState.feedsAndPosts.feeds,
-                watchedState,
-                i18nextInstance,
-                existingUrls,
-              );
-              setTimeout(initAndRun, 5000);
-            };
-
-            initAndRun();
+            createElementsForRender(url, watchedState, existingUrls);
           })
           .catch((error) => {
             watchedState.form.isValid = false;
-            watchedState.form.submittingProcess = false;
-            watchedState.form.errors = error.message;
+            watchedState.form.status = 'failed';
+            watchedState.form.error = error.message;
           });
+
+        updatePosts(watchedState);
       });
     });
 };
