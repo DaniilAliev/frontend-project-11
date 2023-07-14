@@ -59,7 +59,6 @@ const renderFeeds = (value, elements, i18nextInstance, watchedState, newFeed = [
   ulFeed.classList.add('list-group', 'border-0', 'border-end-0');
   ulFeed.replaceChildren(...newFeed);
 
-  // делаем div card-body
   const h2Feed = document.createElement('h2');
   h2Feed.classList.add('card-title', 'h4');
   h2Feed.textContent = i18nextInstance.t('texts.rssFeed.feeds');
@@ -67,20 +66,17 @@ const renderFeeds = (value, elements, i18nextInstance, watchedState, newFeed = [
   divCardBody.classList.add('card-body');
   divCardBody.replaceChildren(h2Feed);
 
-  // делаем div card-border
   const divCardBorder = document.createElement('div');
   divCardBorder.classList.add('card', 'border-0');
   [divCardBody, ulFeed].forEach((item) => {
     divCardBorder.append(item);
   });
 
-  // добавляем полученное в div feeds
   elements.feedField.innerHTML = '';
   elements.feedField.append(divCardBorder);
 };
 
 const renderPosts = (values, elements, i18nextInstance, set, newPosts = []) => {
-  // Посты
   values.forEach((value) => {
     const a = document.createElement('a');
     a.href = value.link;
@@ -116,7 +112,6 @@ const renderPosts = (values, elements, i18nextInstance, set, newPosts = []) => {
     ulPosts.classList.add('list-group', 'border-0', 'rounded-0');
     ulPosts.replaceChildren(...newPosts);
 
-    // создаем div card-body
     const h2Posts = document.createElement('h2');
     h2Posts.classList.add('card-title', 'h4');
     h2Posts.textContent = i18nextInstance.t('texts.rssFeed.posts');
@@ -124,7 +119,6 @@ const renderPosts = (values, elements, i18nextInstance, set, newPosts = []) => {
     divCardBodyPosts.classList.add('card-body');
     divCardBodyPosts.replaceChildren(h2Posts);
 
-    // создаем div card border-0
     const divCardBorderPosts = document.createElement('div');
     divCardBorderPosts.classList.add('card', 'border-0');
     [divCardBodyPosts, ulPosts].forEach((item) => {
@@ -141,8 +135,13 @@ const renderButtonsAndModal = (postId, elements, posts) => {
   const post = posts.find((item) => item.id === postId);
   elements.modalTitle.textContent = post.title;
   elements.modalBody.textContent = post.description;
-  readMoreButton.addEventListener('click', () => {
+  const onClickHandler = () => {
     window.open(post.link, '_blank');
+  };
+  readMoreButton.addEventListener('click', onClickHandler);
+
+  elements.modal.addEventListener('hide.bs.modal', () => {
+    readMoreButton.removeEventListener('click', onClickHandler);
   });
 };
 
