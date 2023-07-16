@@ -1,7 +1,6 @@
 import * as yup from 'yup';
 
-const validate = (feeds, url) => {
-  const urlAr = feeds.map((feed) => feed.link);
+const validate = (urlAr, url) => {
   const schema = yup.string().url().notOneOf(urlAr);
   return schema.validate(url);
 };

@@ -1,16 +1,12 @@
 import _ from 'lodash';
 
-const parserError = (parsedHTML) => {
-  if (parsedHTML.querySelector('parsererror')) {
-    throw new Error('noValidRss');
-  }
-};
-
 const parseRssContent = (response, url) => {
   const parser = new DOMParser();
   const parsedData = parser.parseFromString(response, 'text/xml');
 
-  parserError(parsedData);
+  if (parsedData.querySelector('parsererror')) {
+    throw new Error('noValidRss');
+  }
 
   const titleRSS = parsedData.querySelector('title').textContent;
   const descriptionRss = parsedData.querySelector('description').textContent;
@@ -35,6 +31,4 @@ const parseRssContent = (response, url) => {
   };
 };
 
-export {
-  parseRssContent, parserError,
-};
+export default parseRssContent;

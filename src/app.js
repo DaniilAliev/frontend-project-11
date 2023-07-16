@@ -2,6 +2,7 @@ import 'bootstrap';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import resources from './locales/index.js';
+import yupLocales from './locales/yupLocales.js';
 import validate from './validate.js';
 import { createElementsForRender, updatePosts } from './createElemsForRender.js';
 import watch from './view.js';
@@ -50,35 +51,29 @@ export default () => {
       resources,
     })
     .then(() => {
-      yup.setLocale({
-        mixed: {
-          notOneOf: 'texts.statusMessage.existing',
-        },
-        string: {
-          required: 'texts.statusMessage.notEmpty',
-          url: 'texts.statusMessage.invalid',
-        },
-      });
+      yup.setLocale(yupLocales);
+
+      const watchedState = watch(state, elements, i18nextInstance);
+
+      updatePosts(watchedState);
 
       elements.postsField.addEventListener('click', (eViewed) => {
-        const watchedState = watch(state, elements, i18nextInstance);
         if (eViewed.target.tagName.toUpperCase() === 'BUTTON' || eViewed.target.tagName.toUpperCase() === 'A') {
-          const currentId = eViewed.target.getAttribute('data-id');
+          const currentId = eViewed.target.dataset.id;
           watchedState.ui.watchedPostsId.add(currentId);
           watchedState.postIdInModal = currentId;
         }
       });
 
       elements.form.addEventListener('submit', (e) => {
-        const watchedState = watch(state, elements, i18nextInstance);
-
         watchedState.form.error = null;
 
         e.preventDefault();
         watchedState.form.status = 'loading';
         const formData = new FormData(e.target);
         const url = formData.get('url');
-        validate(watchedState.feeds, url)
+        const urlAr = watchedState.feeds.map((feed) => feed.link);
+        validate(urlAr, url)
           .then(() => {
             watchedState.form.isValid = true;
             createElementsForRender(url, watchedState, existingUrls);
@@ -88,8 +83,6 @@ export default () => {
             watchedState.form.status = 'failed';
             watchedState.form.error = error.message;
           });
-
-        updatePosts(watchedState);
       });
     });
 };

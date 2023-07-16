@@ -1,4 +1,5 @@
-import { parseRssContent } from './parser.js';
+import _ from 'lodash';
+import parseRssContent from './parser.js';
 import getDataFromUrl from './getDataFromUrl.js';
 
 const networkError = (watchedState) => {
@@ -23,7 +24,7 @@ const errorsCatcher = (e, watchedState) => {
 
 const updatePosts = (watchedState) => {
   const update = () => {
-    const promises = watchedState.feeds.map((feed) => getDataFromUrl(feed.link)
+    const updatedPosts = watchedState.feeds.map((feed) => getDataFromUrl(feed.link)
       .then((response) => {
         const { resultPosts } = parseRssContent(response, feed.link);
         let newPost = resultPosts;
@@ -41,14 +42,14 @@ const updatePosts = (watchedState) => {
         errorsCatcher(e, watchedState);
       }));
 
-    Promise.allSettled(promises).then(() => setTimeout(update, 5000));
+    Promise.allSettled(updatedPosts).then(() => setTimeout(update, 5000));
   };
 
   update();
 };
 
 const createElementsForRender = (url, watchedState, existingUrls) => {
-  const existingFeeds = watchedState.feeds.map((feed) => feed.titleRSS);
+  const existingFeeds = watchedState.feeds.map((feed) => feed.link);
   let newPost = [];
   getDataFromUrl(url)
     .then((response) => {
@@ -58,16 +59,14 @@ const createElementsForRender = (url, watchedState, existingUrls) => {
       watchedState.form.status = 'succeed';
       existingUrls.push(url);
 
-      if (watchedState.form.isValid !== false) {
-        watchedState.form.error = 'texts.statusMessage.successful';
-      }
+      watchedState.form.error = 'texts.statusMessage.successful';
 
       if (!existingFeeds.includes(link)) {
         watchedState.feeds.unshift({ titleRSS, descriptionRss, link });
-        existingFeeds.push(titleRSS);
+        existingFeeds.push(link);
       }
 
-      newPost = resultPosts;
+      newPost = _.cloneDeep(resultPosts);
 
       if (watchedState.posts.length !== 0) {
         newPost = newPost.filter(
