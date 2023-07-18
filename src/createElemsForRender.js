@@ -15,7 +15,7 @@ const novalidRssError = (watchedState) => {
 };
 
 const errorsCatcher = (e, watchedState) => {
-  if (e.message === 'noValidRss') {
+  if (e.message.includes('Cannot read properties of null')) {
     novalidRssError(watchedState);
   } else {
     networkError(watchedState);

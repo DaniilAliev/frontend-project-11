@@ -4,10 +4,6 @@ const parseRssContent = (response, url) => {
   const parser = new DOMParser();
   const parsedData = parser.parseFromString(response, 'text/xml');
 
-  if (parsedData.querySelector('parsererror')) {
-    throw new Error('noValidRss');
-  }
-
   const titleRSS = parsedData.querySelector('title').textContent;
   const descriptionRss = parsedData.querySelector('description').textContent;
 
