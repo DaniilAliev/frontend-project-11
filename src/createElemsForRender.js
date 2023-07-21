@@ -15,7 +15,7 @@ const novalidRssError = (watchedState) => {
 };
 
 const errorsCatcher = (e, watchedState) => {
-  if (e.message.includes('Cannot read properties of null')) {
+  if (e.message === 'Error parsing RSS content') {
     novalidRssError(watchedState);
   } else {
     networkError(watchedState);

@@ -6,26 +6,30 @@ import {
 
 const watch = (state, elements, i18nextInstance) => {
   const watchedState = onChange(state, (path, value) => {
-    if (path === 'form.isValid') {
-      renderBorder(value, elements);
-    }
-    if (path === 'form.error') {
-      renderErrors(value, elements, i18nextInstance);
-    }
-    if (path === 'form.status') {
-      renderForm(value, elements, watchedState.form);
-    }
-    if (path === 'postIdInModal') {
-      renderButtonsAndModal(value, elements, watchedState.posts);
-    }
-    if (path === 'feeds') {
-      renderFeeds(value, elements, i18nextInstance, watchedState);
-    }
-    if (path === 'ui.watchedPostsId') {
-      renderViewed(value);
-    }
-    if (path === 'posts') {
-      renderPosts(value, elements, i18nextInstance, watchedState.ui.watchedPostsId);
+    switch (path) {
+      case 'form.isValid':
+        renderBorder(value, elements);
+        break;
+      case 'form.error':
+        renderErrors(value, elements, i18nextInstance);
+        break;
+      case 'form.status':
+        renderForm(value, elements, watchedState.form);
+        break;
+      case 'postIdInModal':
+        renderButtonsAndModal(value, elements, watchedState.posts);
+        break;
+      case 'feeds':
+        renderFeeds(value, elements, i18nextInstance, watchedState);
+        break;
+      case 'ui.watchedPostsId':
+        renderViewed(value);
+        break;
+      case 'posts':
+        renderPosts(value, elements, i18nextInstance, watchedState.ui.watchedPostsId);
+        break;
+      default:
+        throw new Error('Unknown state!');
     }
   });
   return watchedState;

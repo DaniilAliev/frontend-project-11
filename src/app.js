@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import resources from './locales/index.js';
 import yupLocales from './locales/yupLocales.js';
-import validate from './validate.js';
 import { createElementsForRender, updatePosts } from './createElemsForRender.js';
 import watch from './view.js';
 
@@ -36,6 +35,11 @@ export default () => {
     modalTitle: document.querySelector('.modal-title'),
     modalBody: document.querySelector('.modal-body'),
     modalFooterA: document.querySelector('.modal-footer a'),
+  };
+
+  const validate = (urlAr, url) => {
+    const schema = yup.string().url().notOneOf(urlAr);
+    return schema.validate(url);
   };
 
   const existingUrls = [];
