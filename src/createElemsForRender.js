@@ -39,10 +39,10 @@ const updatePosts = (watchedState) => {
         watchedState.posts = [...newPost, ...watchedState.posts];
       })
       .catch((e) => {
-        errorsCatcher(e, watchedState);
+        console.log(e);
       }));
 
-    Promise.allSettled(updatedPosts).then(() => setTimeout(update, 5000));
+    Promise.all(updatedPosts).then(() => setTimeout(update, 5000));
   };
 
   update();
