@@ -15,7 +15,7 @@ const novalidRssError = (watchedState) => {
 };
 
 const errorsCatcher = (e, watchedState) => {
-  if (e.message === 'Error parsing RSS content') {
+  if (e.isMyCoolError) {
     novalidRssError(watchedState);
   } else {
     networkError(watchedState);

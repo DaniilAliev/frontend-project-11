@@ -1,4 +1,3 @@
-import { error } from 'jquery';
 import _ from 'lodash';
 
 const parseRssContent = (response, url) => {
@@ -7,7 +6,8 @@ const parseRssContent = (response, url) => {
 
   const parseError = parsedData.querySelector('parsererror');
   if (parseError) {
-    throw error('Error parsing RSS content');
+    parseError.isMyCoolError = true;
+    throw parseError;
   }
 
   const titleRSS = parsedData.querySelector('title').textContent;
