@@ -131,25 +131,15 @@ const renderPosts = (values, elements, i18nextInstance, set, newPosts = []) => {
 };
 
 const renderButtonsAndModal = (postId, elements, posts) => {
-  const readMoreButton = elements.modal.querySelector('.btn-primary');
   const post = posts.find((item) => item.id === postId);
   elements.modalTitle.textContent = post.title;
   elements.modalBody.textContent = post.description;
-  const onClickHandler = () => {
-    window.open(post.link, '_blank');
-  };
-  readMoreButton.addEventListener('click', onClickHandler);
-
-  elements.modal.addEventListener('hide.bs.modal', () => {
-    readMoreButton.removeEventListener('click', onClickHandler);
-  });
 };
 
 const renderViewed = (set) => {
-  const setAr = [...set];
   const links = document.querySelectorAll('.fw-bold');
   links.forEach((a) => {
-    addTextSecondary(setAr, a);
+    addTextSecondary(Array.from(set), a);
   });
 };
 

@@ -37,12 +37,10 @@ export default () => {
     modalFooterA: document.querySelector('.modal-footer a'),
   };
 
-  const validate = (urlAr, url) => {
-    const schema = yup.string().url().notOneOf(urlAr);
+  const validate = (arrayOfUrls, url) => {
+    const schema = yup.string().url().notOneOf(arrayOfUrls);
     return schema.validate(url);
   };
-
-  const existingUrls = [];
 
   const defaultLang = 'ru';
 
@@ -66,6 +64,18 @@ export default () => {
           const currentId = eViewed.target.dataset.id;
           watchedState.ui.watchedPostsId.add(currentId);
           watchedState.postIdInModal = currentId;
+
+          const readMoreButton = elements.modal.querySelector('.btn-primary');
+          const post = watchedState.posts.find((item) => item.id === watchedState.postIdInModal);
+
+          const onClickHandler = () => {
+            window.open(post.link, '_blank');
+          };
+          readMoreButton.addEventListener('click', onClickHandler);
+
+          elements.modal.addEventListener('hide.bs.modal', () => {
+            readMoreButton.removeEventListener('click', onClickHandler);
+          });
         }
       });
 
@@ -76,11 +86,11 @@ export default () => {
         watchedState.form.status = 'loading';
         const formData = new FormData(e.target);
         const url = formData.get('url');
-        const urlAr = watchedState.feeds.map((feed) => feed.link);
-        validate(urlAr, url)
+        const arrayOfUrls = watchedState.feeds.map((feed) => feed.link);
+        validate(arrayOfUrls, url)
           .then(() => {
             watchedState.form.isValid = true;
-            createElementsForRender(url, watchedState, existingUrls);
+            createElementsForRender(url, watchedState);
           })
           .catch((error) => {
             watchedState.form.isValid = false;

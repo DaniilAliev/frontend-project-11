@@ -27,14 +27,12 @@ const updatePosts = (watchedState) => {
     const updatedPosts = watchedState.feeds.map((feed) => getDataFromUrl(feed.link)
       .then((response) => {
         const { resultPosts } = parseRssContent(response, feed.link);
-        let newPost = resultPosts;
 
-        if (watchedState.posts.length !== 0) {
-          newPost = newPost.filter(
-            (post) => !watchedState.posts
-              .some((statePost) => statePost.link === post.link),
-          );
-        }
+        const newPost = resultPosts.filter(
+          (post) => !watchedState.posts
+            .some((statePost) => statePost.link === post.link),
+        )
+          .map((post) => ({ ...post, id: _.uniqueId() }));
 
         watchedState.posts = [...newPost, ...watchedState.posts];
       })
@@ -48,34 +46,22 @@ const updatePosts = (watchedState) => {
   update();
 };
 
-const createElementsForRender = (url, watchedState, existingUrls) => {
-  const existingFeeds = watchedState.feeds.map((feed) => feed.link);
-  let newPost = [];
+const createElementsForRender = (url, watchedState) => {
   getDataFromUrl(url)
     .then((response) => {
       const {
         titleRSS, descriptionRss, link, resultPosts,
       } = parseRssContent(response, url);
+
       watchedState.form.status = 'succeed';
-      existingUrls.push(url);
 
       watchedState.form.error = 'texts.statusMessage.successful';
 
-      if (!existingFeeds.includes(link)) {
-        watchedState.feeds.unshift({ titleRSS, descriptionRss, link });
-        existingFeeds.push(link);
-      }
+      watchedState.feeds = [...[{ titleRSS, descriptionRss, link }], ...watchedState.feeds];
 
-      newPost = _.cloneDeep(resultPosts);
+      const posts = resultPosts.map((post) => ({ ...post, id: _.uniqueId() }));
 
-      if (watchedState.posts.length !== 0) {
-        newPost = newPost.filter(
-          (post) => !watchedState.posts
-            .some((statePost) => statePost.link === post.link),
-        );
-      }
-
-      watchedState.posts = [...newPost, ...watchedState.posts];
+      watchedState.posts = [...posts, ...watchedState.posts];
     })
     .catch((e) => {
       errorsCatcher(e, watchedState);
