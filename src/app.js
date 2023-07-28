@@ -64,18 +64,6 @@ export default () => {
           const currentId = eViewed.target.dataset.id;
           watchedState.ui.watchedPostsId.add(currentId);
           watchedState.postIdInModal = currentId;
-
-          const readMoreButton = elements.modal.querySelector('.btn-primary');
-          const post = watchedState.posts.find((item) => item.id === watchedState.postIdInModal);
-
-          const onClickHandler = () => {
-            window.open(post.link, '_blank');
-          };
-          readMoreButton.addEventListener('click', onClickHandler);
-
-          elements.modal.addEventListener('hide.bs.modal', () => {
-            readMoreButton.removeEventListener('click', onClickHandler);
-          });
         }
       });
 

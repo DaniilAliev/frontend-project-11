@@ -131,9 +131,11 @@ const renderPosts = (values, elements, i18nextInstance, set, newPosts = []) => {
 };
 
 const renderButtonsAndModal = (postId, elements, posts) => {
+  const readMoreButton = elements.modal.querySelector('.btn-primary');
   const post = posts.find((item) => item.id === postId);
   elements.modalTitle.textContent = post.title;
   elements.modalBody.textContent = post.description;
+  readMoreButton.href = post.link;
 };
 
 const renderViewed = (set) => {
