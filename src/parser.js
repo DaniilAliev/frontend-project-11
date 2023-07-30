@@ -4,7 +4,7 @@ const parseRssContent = (response, url) => {
 
   const parseError = parsedData.querySelector('parsererror');
   if (parseError) {
-    parseError.isMyCoolError = true;
+    parseError.isParsingError = true;
     throw parseError;
   }
 

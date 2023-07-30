@@ -15,7 +15,7 @@ const novalidRssError = (watchedState) => {
 };
 
 const errorsCatcher = (e, watchedState) => {
-  if (e.isMyCoolError) {
+  if (e.isParsingError) {
     novalidRssError(watchedState);
   } else {
     networkError(watchedState);
@@ -28,13 +28,13 @@ const updatePosts = (watchedState) => {
       .then((response) => {
         const { resultPosts } = parseRssContent(response, feed.link);
 
-        const newPost = resultPosts.filter(
+        const newPosts = resultPosts.filter(
           (post) => !watchedState.posts
             .some((statePost) => statePost.link === post.link),
         )
           .map((post) => ({ ...post, id: _.uniqueId() }));
 
-        watchedState.posts = [...newPost, ...watchedState.posts];
+        watchedState.posts = [...newPosts, ...watchedState.posts];
       })
       .catch((e) => {
         console.log(e);
@@ -57,7 +57,7 @@ const createElementsForRender = (url, watchedState) => {
 
       watchedState.form.error = 'texts.statusMessage.successful';
 
-      watchedState.feeds = [...[{ titleRSS, descriptionRss, link }], ...watchedState.feeds];
+      watchedState.feeds.unshift({ titleRSS, descriptionRss, link });
 
       const posts = resultPosts.map((post) => ({ ...post, id: _.uniqueId() }));
 

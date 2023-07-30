@@ -1,6 +1,6 @@
-const addTextSecondary = (set, a) => {
-  set.forEach((num) => {
-    if (a.dataset.id === num) {
+const addTextSecondary = (watchedPostsId, a) => {
+  watchedPostsId.forEach((id) => {
+    if (a.dataset.id === id) {
       a.classList.add('text-secondary');
     }
   });
@@ -36,7 +36,7 @@ const renderErrors = (error, elements, i18nextInstance) => {
   elements.errorField.textContent = i18nextInstance.t(`${error}`);
 };
 
-const renderFeeds = (value, elements, i18nextInstance, watchedState, newFeed = []) => {
+const renderFeeds = (value, elements, i18nextInstance, newFeed = []) => {
   value.forEach((item) => {
     const h3Feed = document.createElement('h3');
     h3Feed.classList.add('h6', 'm-0');
@@ -76,7 +76,7 @@ const renderFeeds = (value, elements, i18nextInstance, watchedState, newFeed = [
   elements.feedField.append(divCardBorder);
 };
 
-const renderPosts = (values, elements, i18nextInstance, set, newPosts = []) => {
+const renderPosts = (values, elements, i18nextInstance, watchedPostsId, newPosts = []) => {
   values.forEach((value) => {
     const a = document.createElement('a');
     a.href = value.link;
@@ -86,7 +86,7 @@ const renderPosts = (values, elements, i18nextInstance, set, newPosts = []) => {
     a.rel = 'noopener noreferrer';
     a.dataset.id = value.id;
 
-    addTextSecondary(set, a);
+    addTextSecondary(watchedPostsId, a);
 
     const button = document.createElement('button');
     button.textContent = i18nextInstance.t('texts.rssFeed.watch');
@@ -138,10 +138,10 @@ const renderButtonsAndModal = (postId, elements, posts) => {
   readMoreButton.href = post.link;
 };
 
-const renderViewed = (set) => {
+const renderViewed = (watchedPostsId) => {
   const links = document.querySelectorAll('.fw-bold');
   links.forEach((a) => {
-    addTextSecondary(Array.from(set), a);
+    addTextSecondary(watchedPostsId, a);
   });
 };
 
